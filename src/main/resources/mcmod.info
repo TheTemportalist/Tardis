@@ -1,16 +1,16 @@
 [
 {
-  "modid": "modid",
-  "name": "modname",
+  "modid": "tardis",
+  "name": "Tardis",
   "description": "",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "",
   "updateUrl": "",
-  "authors": ["Me"],
+  "authors": ["TheTemportalist", "XCompWiz"],
   "credits": "",
   "logoFile": "",
   "screenshots": [],
-  "dependencies": []
+  "dependencies": ["origin"]
 }
 ]
