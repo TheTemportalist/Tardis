@@ -30,6 +30,9 @@ class EntityPlayerTardis(player: EntityPlayerSP) extends EntityPlayerSP(
 				PlayerTardis.close(getPlayer())
 				return
 			}
+			setLocationAndAngles(
+				tardis.posX, tardis.posY, tardis.posZ, tardis.rotationYaw, tardis.rotationPitch
+			)
 			val gs: GameSettings = Minecraft.getMinecraft.gameSettings
 
 			// todo calculate upwards movement base on pitch
@@ -45,10 +48,11 @@ class EntityPlayerTardis(player: EntityPlayerSP) extends EntityPlayerSP(
 			if (gs.keyBindLeft.isKeyDown) tardisStrafe += 1
 			if (gs.keyBindRight.isKeyDown) tardisStrafe -= 1
 
-			if (tardisForward != 0 || tardisStrafe != 0)
+			if (tardisForward != 0 || tardisStrafe != 0) {
 				PacketHandler.sendToServer(Tardis.MODID,
 					new PacketTardisMover(tardisForward, tardisStrafe)
 				)
+			}
 
 		}
 

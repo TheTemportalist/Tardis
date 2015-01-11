@@ -1,0 +1,44 @@
+{
+	"textures": {
+		"all": "tardis:blocks/console"
+	},
+	"elements": [
+		{
+			"shade": false,
+			"from": [ 3, 0, 3 ],
+			"to": [ 13, 16, 13 ],
+			"faces": {
+				"down": { "uv": [ 28, 40, 38, 50 ], "texture": "#all", "cullface": "down" },
+				"north": { "uv": [ 0, 20, 10, 36 ], "texture": "#all" },
+				"south": { "uv": [ 10, 20, 20, 36 ], "texture": "#all" },
+				"east": { "uv": [ 20, 20, 30, 36 ], "texture": "#all" },
+				"west": { "uv": [ 30, 20, 40, 36 ], "texture": "#all" }
+			}
+		},
+		{
+			"shade": false,
+			"from": [ -2, 16, -2 ],
+			"to": [ 18, 18, 18 ],
+			"faces": {
+				"down": { "uv": [ 0, 0, 20, 20 ], "texture": "#all" },
+				"up": { "uv": [ 20, 0, 40, 20 ], "texture": "#all" },
+				"north": { "uv": [ 0, 36, 20, 38 ], "texture": "#all" },
+				"south": { "uv": [ 0, 38, 20, 40 ], "texture": "#all" },
+				"east": { "uv": [ 20, 36, 40, 38 ], "texture": "#all" },
+				"west": { "uv": [ 20, 38, 40, 40 ], "texture": "#all" }
+			}
+		},
+		{
+			"shade": false,
+			"from": [ 1, 18, 1 ],
+			"to": [ 15, 20, 15 ],
+			"faces": {
+				"up": { "uv": [ 0, 40, 14, 54 ], "texture": "#all" },
+				"north": { "uv": [ 14, 40, 28, 42 ], "texture": "#all" },
+				"south": { "uv": [ 14, 42, 28, 44 ], "texture": "#all" },
+				"east": { "uv": [ 14, 44, 28, 46 ], "texture": "#all" },
+				"west": { "uv": [ 14, 46, 28, 48 ], "texture": "#all" }
+			}
+		}
+	]
+}
