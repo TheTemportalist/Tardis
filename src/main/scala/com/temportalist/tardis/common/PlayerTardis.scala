@@ -66,10 +66,12 @@ class PlayerTardis(p: EntityPlayer) extends ExtendedEntity(p) {
 			// todo WARNING: we need to make sure the tardis is chunk loaded
 			val tardis: EntityTardis = this.getTardis()
 			if (tardis != null) {
-				this.originalPOV = Minecraft.getMinecraft.gameSettings.thirdPersonView
+
 				Minecraft.getMinecraft.setRenderViewEntity(tardis)
+				this.originalPOV = Minecraft.getMinecraft.gameSettings.thirdPersonView
 				Minecraft.getMinecraft.gameSettings.thirdPersonView = 1
 
+				EntityPlayerTardis.open()
 
 			}
 		}
@@ -79,13 +81,12 @@ class PlayerTardis(p: EntityPlayer) extends ExtendedEntity(p) {
 	@SideOnly(value = Side.CLIENT)
 	def closeRender(): Unit = {
 		if (this.isControllingTardis() && Minecraft.getMinecraft.thePlayer.isInstanceOf[EntityPlayerTardis]) {
-			val ept: EntityPlayerTardis =
-				Minecraft.getMinecraft.thePlayer.asInstanceOf[EntityPlayerTardis]
-			EntityPlayerTardis.setFrom(ept)
+
+			EntityPlayerTardis.close()
+
 			Minecraft.getMinecraft.gameSettings.thirdPersonView = this.originalPOV
 			this.originalPOV = -1
 
-			ept.setDead()
 		}
 		this.syncEntity()
 	}

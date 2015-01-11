@@ -1,5 +1,6 @@
 package com.temportalist.tardis.common
 
+import com.temportalist.origin.library.common.nethandler.PacketHandler
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.client.settings.GameSettings
@@ -30,27 +31,24 @@ class EntityPlayerTardis(player: EntityPlayerSP) extends EntityPlayerSP(
 				return
 			}
 			val gs: GameSettings = Minecraft.getMinecraft.gameSettings
-			//this.moveStrafe = 0.0F
-			//this.moveForward = 0.0F
-
-			if (gs.keyBindForward.isKeyDown) {
-				//this.moveForward += 1
-				tardis.moveFlying(0, 1, 0)
-			}
-			if (gs.keyBindBack.isKeyDown) {
-				//this.moveForward -= 1
-				tardis.moveFlying(0, -1, 0)
-			}
-			if (gs.keyBindLeft.isKeyDown) {
-				//this.moveStrafe += 1
-				tardis.moveFlying(1, 0, 0)
-			}
-			if (gs.keyBindRight.isKeyDown) {
-				//this.moveStrafe -= 1
-				tardis.moveFlying(-1, 0, 0)
-			}
 
 			// todo calculate upwards movement base on pitch
+
+			if (this.moveStrafe != 0) this.moveStrafe = 0
+			if (this.moveForward != 0) this.moveForward = 0
+
+			var tardisForward: Float = 0
+			var tardisStrafe: Float = 0
+
+			if (gs.keyBindForward.isKeyDown) tardisForward += 1
+			if (gs.keyBindBack.isKeyDown) tardisForward -= 1
+			if (gs.keyBindLeft.isKeyDown) tardisStrafe += 1
+			if (gs.keyBindRight.isKeyDown) tardisStrafe -= 1
+
+			if (tardisForward != 0 || tardisStrafe != 0)
+				PacketHandler.sendToServer(Tardis.MODID,
+					new PacketTardisMover(tardisForward, tardisStrafe)
+				)
 
 		}
 
@@ -105,8 +103,16 @@ class EntityPlayerTardis(player: EntityPlayerSP) extends EntityPlayerSP(
 @SideOnly(value = Side.CLIENT)
 object EntityPlayerTardis {
 
-	def setFrom(ept: EntityPlayerTardis): Unit = {
+	def open(): Unit = {
+		Minecraft.getMinecraft.thePlayer =
+				new EntityPlayerTardis(Minecraft.getMinecraft.thePlayer)
+	}
+
+	def close(): Unit = {
+		val ept: EntityPlayerTardis =
+			Minecraft.getMinecraft.thePlayer.asInstanceOf[EntityPlayerTardis]
 		Minecraft.getMinecraft.thePlayer = ept.getPlayer()
+		ept.setDead()
 	}
 
 }

@@ -293,10 +293,7 @@ class ModelTardis() extends ModelBase {
 			case tardis: EntityTardis =>
 				// todo main rotations when flying
 
-				// todo the rotation of the entity is not corrently apply to the rotation of the rendering
-				println(tardis.rotationYaw)
-				println(Math.toRadians(tardis.rotationYaw))
-				this.roof1.rotateAngleY = 0
+				this.roof1.rotateAngleY = -Math.toRadians(tardis.rotationYaw).toFloat
 
 				// Door rotations
 				val rotation: Float = Math.toRadians(

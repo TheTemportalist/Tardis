@@ -48,7 +48,9 @@ object Tardis extends ModWrapper {
 		this.tardis = new ItemPlacer(this.MODID, "tardis", classOf[EntityTardis])
 		this.tardis.setCreativeTab(CreativeTabs.tabTransport)
 
-		RegisterHelper.registerPacketHandler(this.MODID, classOf[PacketTardisController])
+		RegisterHelper.registerPacketHandler(this.MODID, classOf[PacketTardisController],
+			classOf[PacketTardisMover]
+		)
 
 	}
 

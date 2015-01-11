@@ -4,7 +4,7 @@ import com.temportalist.origin.library.common.lib.vec.Vector3O
 import net.minecraft.entity.{EntityLivingBase, Entity}
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.util.{AxisAlignedBB, DamageSource, Vec3}
+import net.minecraft.util._
 import net.minecraft.world.World
 
 /**
@@ -27,6 +27,8 @@ class EntityTardis(w: World) extends Entity(w) {
 		this.dataWatcher.addObject(10, 0) // door open(1)/shut(0)
 
 	}
+
+
 
 	override def canUseCommand(permissionLevel: Int, command: String): Boolean = false
 
@@ -151,5 +153,7 @@ class EntityTardis(w: World) extends Entity(w) {
 	def openDoor(): Unit = this.dataWatcher.updateObject(10, 1)
 
 	def closeDoor(): Unit = this.dataWatcher.updateObject(10, 0)
+
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 }
