@@ -25,10 +25,9 @@ class EntityTardis(w: World) extends Entity(w) {
 		this.dataWatcher.addObject(6, 1.0F)
 
 		this.dataWatcher.addObject(10, 0) // door open(1)/shut(0)
+		this.dataWatcher.addObject(11, 0) // tardis' interior dimension id
 
 	}
-
-
 
 	override def canUseCommand(permissionLevel: Int, command: String): Boolean = false
 
@@ -153,6 +152,11 @@ class EntityTardis(w: World) extends Entity(w) {
 	def openDoor(): Unit = this.dataWatcher.updateObject(10, 1)
 
 	def closeDoor(): Unit = this.dataWatcher.updateObject(10, 0)
+
+	def getInteriorDimension(): Int = this.dataWatcher.getWatchableObjectInt(11)
+
+	def setInteriorDimension(dimid: Int): Unit =
+		this.dataWatcher.updateObject(11, dimid)
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

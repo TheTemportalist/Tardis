@@ -1,6 +1,6 @@
 {
 	"textures": {
-		"all": "tardis:blocks/console"
+		"all": "tardis:blocks/console" // this is having issues...
 	},
 	"elements": [
 		{
