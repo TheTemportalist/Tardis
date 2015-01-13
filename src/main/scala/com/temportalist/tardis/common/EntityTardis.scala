@@ -1,7 +1,7 @@
 package com.temportalist.tardis.common
 
-import com.temportalist.origin.library.common.lib.vec.Vector3O
-import net.minecraft.entity.{EntityLivingBase, Entity}
+import com.temportalist.origin.library.common.utility.WorldHelper
+import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util._
@@ -94,8 +94,9 @@ class EntityTardis(w: World) extends Entity(w) {
 	override def getBoundingBox: AxisAlignedBB = this.getEntityBoundingBox
 
 	override def onCollideWithPlayer(player: EntityPlayer): Unit = {
-		// todo collision player things
-		println("collision")
+		if (WorldHelper.isInFieldOfView(this, player) && this.isDoorOpen()) {
+			TardisManager.movePlayerThroughDoor(player, this, true)
+		}
 	}
 
 	override def interactFirst(playerIn: EntityPlayer): Boolean = {
@@ -103,46 +104,9 @@ class EntityTardis(w: World) extends Entity(w) {
 			PlayerTardis.open(this, playerIn)
 			return true
 		}
-		if (this.isInFieldOfViewOf(this, playerIn))
+		if (WorldHelper.isInFieldOfView(this, playerIn))
 			if (this.isDoorOpen()) this.closeDoor() else this.openDoor()
 		true
-	}
-
-	// TODO move to an entity wrapper
-	def canEntityBeSeen(entity: Entity): Boolean = {
-		this.worldObj.rayTraceBlocks(
-			new Vec3(
-				this.posX, this.posY + this.getEyeHeight.asInstanceOf[Double], this.posZ)
-			,
-			new Vec3(
-				entity.posX, entity.posY + entity.getEyeHeight.asInstanceOf[Double], entity.posZ
-			)
-		) == null
-	}
-
-	// todo move to origin
-	def isInFieldOfViewOf(entity: EntityTardis, thisEntity: EntityLivingBase): Boolean = {
-		val entityLookVec: Vector3O = new Vector3O(entity.getLook(1.0F)) //.normalize()
-		val differenceVec: Vector3O = new Vector3O(
-				thisEntity.posX - entity.posX,
-				thisEntity.posY +
-						(thisEntity.height /* / 2.0F */).asInstanceOf[Double] -
-						(entity.posY + entity.getEyeHeight().asInstanceOf[Double]),
-				thisEntity.posZ - entity.posZ
-			)
-
-		val lengthVec: Double = differenceVec.toVec3().lengthVector()
-
-		val differenceVec_normal: Vec3 = differenceVec.toVec3().normalize()
-
-		val d1: Double = entityLookVec.toVec3().dotProduct(differenceVec_normal)
-
-		if (d1 > (1.0D - 0.025D) / lengthVec && thisEntity.canEntityBeSeen(entity)) {
-			true
-		}
-		else {
-			false
-		}
 	}
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

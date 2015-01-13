@@ -3,7 +3,8 @@ package com.temportalist.tardis.client
 import java.util
 
 import com.temportalist.tardis.client.model.ModelTardis
-import com.temportalist.tardis.client.render.RenderTardis
+import com.temportalist.tardis.client.render.{RenderTardisDoor, RenderTardis}
+import com.temportalist.tardis.common.tile.TEDoor
 import com.temportalist.tardis.common.{EntityTardis, ProxyCommon}
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiScreen
@@ -12,7 +13,7 @@ import net.minecraft.tileentity.TileEntity
 import net.minecraft.world.World
 import net.minecraftforge.fml.client.IModGuiFactory
 import net.minecraftforge.fml.client.IModGuiFactory.{RuntimeOptionCategoryElement, RuntimeOptionGuiHandler}
-import net.minecraftforge.fml.client.registry.RenderingRegistry
+import net.minecraftforge.fml.client.registry.{ClientRegistry, RenderingRegistry}
 
 /**
  *
@@ -25,6 +26,7 @@ class ProxyClient() extends ProxyCommon with IModGuiFactory {
 		RenderingRegistry.registerEntityRenderingHandler(classOf[EntityTardis],
 			new RenderTardis(new ModelTardis())
 		)
+		ClientRegistry.bindTileEntitySpecialRenderer(classOf[TEDoor], new RenderTardisDoor())
 	}
 
 	override def getClientElement(ID: Int, player: EntityPlayer, world: World, x: Int, y: Int,

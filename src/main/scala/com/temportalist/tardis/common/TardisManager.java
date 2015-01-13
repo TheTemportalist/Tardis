@@ -1,6 +1,6 @@
 package com.temportalist.tardis.common;
 
-import com.temportalist.origin.library.common.lib.vec.Vector3O;
+import com.temportalist.origin.library.common.lib.vec.V3O;
 import com.temportalist.origin.library.common.utility.Teleport;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
@@ -19,15 +19,9 @@ public class TardisManager {
 
 	private static final HashMap<Integer, EntityTardis> tardi =
 			new HashMap<Integer, EntityTardis>();
-	private static final HashMap<Integer, Vector3O> origins =
-			new HashMap<Integer, Vector3O>();
+	private static final HashMap<Integer, V3O> origins =
+			new HashMap<Integer, V3O>();
 	private static final ArrayList<Integer> consoles = new ArrayList<Integer>();
-
-	public static void registerTardis(EntityTardis tardis) {
-		// todo create a dimension and send it back to the tardis using
-		// create dimension & register in tardi & origins
-		tardis.setInteriorDimension(852748931);
-	}
 
 	public static void registerConsole(World world, boolean place) {
 		int dim = world.provider.getDimensionId();
@@ -41,6 +35,20 @@ public class TardisManager {
 		}
 	}
 
+	public static void openInterface(EntityPlayer player) {
+		PlayerTardis.open(
+				TardisManager.getTardisForDimension(
+						player.getEntityWorld().provider.getDimensionId()
+				), player
+		);
+	}
+
+	public static void registerTardis(EntityTardis tardis) {
+		// todo create a dimension and send it back to the tardis using
+		// create dimension & register in tardi & origins
+		tardis.setInteriorDimension(852748931);
+	}
+
 	/** TODO finish this method based on starting point in dimension
 	 * Moves player through the passed tardis' door (transfer player to tardis interior)
 	 * @param player The player passing into the interior
@@ -48,7 +56,7 @@ public class TardisManager {
 	 * @param into True if going into interior, false if coming out
 	 */
 	public static void movePlayerThroughDoor(EntityPlayer player, EntityTardis tardis, boolean into) {
-		Vector3O pos;
+		V3O pos;
 		int dim;
 		if (into) {
 			dim = tardis.getInteriorDimension();
@@ -56,7 +64,7 @@ public class TardisManager {
 		}
 		else {
 			dim = tardis.getEntityWorld().provider.getDimensionId();
-			pos = new Vector3O(tardis);
+			pos = new V3O(tardis);
 			// todo translate pos based on tardis rotation (where tardis doors are frontwards)
 		}
 		// todo change to encapsulated method in Teleport

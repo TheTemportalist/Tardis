@@ -1,6 +1,6 @@
 package com.temportalist.tardis.common.item
 
-import com.temportalist.origin.library.common.lib.vec.Vector3O
+import com.temportalist.origin.library.common.lib.vec.V3O
 import com.temportalist.origin.wrapper.common.item.ItemWrapper
 import net.minecraft.block.state.IBlockState
 import net.minecraft.block.{BlockFence, BlockLiquid}
@@ -29,7 +29,7 @@ class ItemPlacer(id: String, n: String, private var entClass: Class[_ <: Entity]
 		if (mop != null && mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK &&
 				world.getBlockState(mop.getBlockPos).getBlock.isInstanceOf[BlockLiquid]) {
 			val useStack: ItemStack = itemStack.copy()
-			val offsets: Vector3O = new Vector3O(mop.hitVec) - new Vector3O(mop.getBlockPos())
+			val offsets: V3O = new V3O(mop.hitVec) - new V3O(mop.getBlockPos())
 			if (this.onItemUse(
 				useStack, player, world, mop.getBlockPos(), mop.sideHit,
 				offsets.x_f(), offsets.y_f(), offsets.z_f()
@@ -47,7 +47,7 @@ class ItemPlacer(id: String, n: String, private var entClass: Class[_ <: Entity]
 		if (!playerIn.canPlayerEdit(pos.offset(side), side, stack)) return false
 
 		val state: IBlockState = worldIn.getBlockState(pos)
-		val posVec: Vector3O = new Vector3O(pos)
+		val posVec: V3O = new V3O(pos)
 
 		/*
 		if (state.getBlock == Blocks.mob_spawner) {
@@ -71,7 +71,7 @@ class ItemPlacer(id: String, n: String, private var entClass: Class[_ <: Entity]
 
 		posVec.add(side)
 
-		posVec.add(new Vector3O(0.5, 0, 0.5))
+		posVec.add(new V3O(0.5, 0, 0.5))
 		if (side == EnumFacing.UP && state.getBlock.isInstanceOf[BlockFence])
 			posVec.add(0, 0.5, 0)
 
@@ -97,7 +97,7 @@ class ItemPlacer(id: String, n: String, private var entClass: Class[_ <: Entity]
 
 object ItemPlacer {
 
-	def createEntity(entClass: Class[_ <: Entity], world: World, pos: Vector3O,
+	def createEntity(entClass: Class[_ <: Entity], world: World, pos: V3O,
 			rotZ: Float): Entity = {
 		var entity: Entity = null
 		try {

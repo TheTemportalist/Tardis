@@ -1,6 +1,6 @@
 package com.temportalist.tardis.server
 
-import com.temportalist.origin.library.common.lib.vec.Vector3O
+import com.temportalist.origin.library.common.lib.vec.V3O
 import com.temportalist.tardis.common.item.ItemPlacer
 import com.temportalist.tardis.common.{EntityTardis, PlayerTardis}
 import net.minecraft.command.{CommandBase, ICommandSender}
@@ -55,7 +55,7 @@ class CommandTardis() extends CommandBase {
 
 						val tardis: Entity = ItemPlacer.createEntity(
 							classOf[EntityTardis], world,
-							new Vector3O(player) + new Vector3O(facing).scale(2), dir * 90
+							new V3O(player) + new V3O(facing).scale(2), dir * 90
 						)
 
 						PlayerTardis.open(tardis.asInstanceOf[EntityTardis], player)

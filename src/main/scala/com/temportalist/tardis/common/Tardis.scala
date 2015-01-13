@@ -4,12 +4,14 @@ import com.temportalist.origin.library.common.Origin
 import com.temportalist.origin.library.common.helpers.RegisterHelper
 import com.temportalist.origin.wrapper.common.item.ItemWrapper
 import com.temportalist.origin.wrapper.common.{ModWrapper, ProxyWrapper}
-import com.temportalist.tardis.common.block.BlockConsole
+import com.temportalist.tardis.common.block.{BlockTardisDoor, BlockConsole}
 import com.temportalist.tardis.common.item.ItemPlacer
-import com.temportalist.tardis.common.tile.TEConsole
+import com.temportalist.tardis.common.tile.{TEDoor, TEConsole}
 import com.temportalist.tardis.server.CommandTardis
 import net.minecraft.tileentity.TileEntity
+import net.minecraftforge.event.entity.EntityJoinWorldEvent
 import net.minecraftforge.fml.common.event._
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.common.registry.{GameRegistry, EntityRegistry}
 import net.minecraftforge.fml.common.{Mod, SidedProxy}
 
@@ -35,6 +37,7 @@ object Tardis extends ModWrapper {
 
 	var tardis: ItemWrapper = null
 	var console: BlockConsole = null
+	var tDoor: BlockTardisDoor = null
 
 	@Mod.EventHandler
 	def pre(event: FMLPreInitializationEvent): Unit = {
@@ -55,6 +58,10 @@ object Tardis extends ModWrapper {
 		this.register("console", classOf[TEConsole])
 		this.console = new BlockConsole("console")
 		Origin.addBlockToTab(this.console)
+
+		this.register("door", classOf[TEDoor])
+		this.tDoor = new BlockTardisDoor("tardis_door")
+		Origin.addBlockToTab(this.tDoor)
 
 		RegisterHelper.registerPacketHandler(this.MODID, classOf[PacketTardisController],
 			classOf[PacketTardisMover]
@@ -81,5 +88,14 @@ object Tardis extends ModWrapper {
 	// TODO move to blockregister
 	def register(id: String, clazz: Class[_ <: TileEntity]): Unit =
 		GameRegistry.registerTileEntity(clazz, id)
+
+	@SubscribeEvent
+	def onJoinWorld(event: EntityJoinWorldEvent): Unit = {
+		event.entity match {
+			case tardis: EntityTardis =>
+				TardisManager.registerTardis(tardis)
+			case _ =>
+		}
+	}
 
 }
