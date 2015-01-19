@@ -1,0 +1,16 @@
+Gui for creation: (Like a map!)
+	Moveable XZ plot representing the interior dimension.
+	Lets you place door whereever in starting chunk
+		When placing,
+	Can be access from console for door movement or world expansion
+		See WorldBorder and CommandWorldBorder for setting world size
+		Also read http://minecraft.gamepedia.com/World_border
+	Upgrading the tardis unlocks chunks inside
+		Open gui, will show you # of unlockable chunks
+		Unlock a chunk in gui and use one unlock
+			Must be a square
+			Chunk Tiers:
+				1x1, 2x2, 3x3, 4x4, 5x5, etc
+		Is no reversible
+			Maybe if empty chunk?
+
