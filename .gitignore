@@ -38,3 +38,5 @@ project/plugins/project/
 ehthumbs.db
 Thumbs.db
 
+gradlew.bat
+gradle/wrapper/gradle-wrapper.properties
