@@ -5,6 +5,7 @@ import com.temportalist.origin.library.common.helpers.RegisterHelper
 import com.temportalist.origin.wrapper.common.item.ItemWrapper
 import com.temportalist.origin.wrapper.common.{ModWrapper, ProxyWrapper}
 import com.temportalist.tardis.common.block.{BlockTardisDoor, BlockConsole}
+import com.temportalist.tardis.common.dimensions.DimManager
 import com.temportalist.tardis.common.item.ItemPlacer
 import com.temportalist.tardis.common.tile.{TEDoor, TEConsole}
 import com.temportalist.tardis.server.CommandTardis
@@ -66,6 +67,7 @@ object Tardis extends ModWrapper {
 		RegisterHelper.registerPacketHandler(this.MODID, classOf[PacketTardisController],
 			classOf[PacketTardisMover]
 		)
+		RegisterHelper.registerHandler(DimManager)
 
 	}
 

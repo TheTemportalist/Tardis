@@ -23,6 +23,8 @@ public class TardisManager {
 			new HashMap<Integer, V3O>();
 	private static final ArrayList<Integer> consoles = new ArrayList<Integer>();
 
+
+
 	public static void registerConsole(World world, boolean place) {
 		int dim = world.provider.getDimensionId();
 		if (TardisManager.tardi.containsKey(dim)) {
