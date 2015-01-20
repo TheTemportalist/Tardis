@@ -1,6 +1,7 @@
 package com.temportalist.tardis.common
 
 import com.temportalist.origin.library.common.utility.WorldHelper
+import com.temportalist.tardis.common.dimensions.DimManager
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.nbt.NBTTagCompound
@@ -78,6 +79,7 @@ class EntityTardis(w: World) extends Entity(w) {
 			case player: EntityPlayer =>
 				if (player.capabilities.isCreativeMode) {
 					this.setDead()
+					DimManager.removeDim(this)
 					return true
 				}
 			case _ =>
@@ -95,7 +97,8 @@ class EntityTardis(w: World) extends Entity(w) {
 
 	override def onCollideWithPlayer(player: EntityPlayer): Unit = {
 		if (WorldHelper.isInFieldOfView(this, player) && this.isDoorOpen()) {
-			TardisManager.movePlayerThroughDoor(player, this, true)
+			//TardisManager.movePlayerThroughDoor(player, this, true)
+			println(this.getInteriorDimension())
 		}
 	}
 
@@ -123,5 +126,10 @@ class EntityTardis(w: World) extends Entity(w) {
 		this.dataWatcher.updateObject(11, dimid)
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	def onSpawn(): Unit = {
+		DimManager.registerTardisAndDim(this)
+		println ("Registered Tardis")
+	}
 
 }

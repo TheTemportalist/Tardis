@@ -85,6 +85,13 @@ class ItemPlacer(id: String, n: String, private var entClass: Class[_ <: Entity]
 
 		this.playSummonSound(posVec.toBlockCoord(worldIn))
 
+		try {
+			this.entClass.getMethod("onSpawn").invoke(entity)
+		}
+		catch {
+			case e: Exception =>
+		}
+
 		if (stack.hasDisplayName) entity.setCustomNameTag(stack.getDisplayName)
 		if (!playerIn.capabilities.isCreativeMode) stack.stackSize -= 1
 

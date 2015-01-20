@@ -21,7 +21,7 @@ import net.minecraftforge.fml.common.network.FMLNetworkEvent.ServerConnectionFro
  */
 object DimManager {
 
-	var registeredDims: util.Collection[Int] = null
+	var registeredDims: util.List[Int] = null
 
 	@SubscribeEvent
 	def onSave(event: WorldEvent.Save): Unit = {
@@ -33,8 +33,8 @@ object DimManager {
 					val archObj: JsonObject = new JsonObject
 
 					val dimArray: JsonArray = new JsonArray
-					for (dimid: Int <- this.registeredDims) {
-						dimArray.add(new JsonPrimitive(dimid))
+					for (i <- 0 until this.registeredDims.size()) {
+						dimArray.add(new JsonPrimitive(this.registeredDims.get(i)))
 					}
 					archObj.add("TardisDimIDs", dimArray)
 
@@ -55,8 +55,10 @@ object DimManager {
 			case server: WorldServer =>
 				val dir: File = server.getSaveHandler.getWorldDirectory
 				if (dir != null) {
+					val file: File = new File(dir, "tardis.json")
+					if (!file.exists()) return
 					val archObj: JsonObject = new JsonParser().parse(
-						new FileReader(new File(dir, "tardis.json"))).getAsJsonObject
+						new FileReader(file)).getAsJsonObject
 
 					val dimArray: JsonArray = archObj.get("TardisDimIDs").getAsJsonArray
 					this.registeredDims = new util.ArrayList[Int]()
@@ -73,13 +75,17 @@ object DimManager {
 	// TODO what is this for???
 	var providerID: Int = 1210950780
 
+	def removeDim(tardis: EntityTardis): Unit = {
+		this.registeredDims.remove(tardis.getInteriorDimension())
+		DimensionManager.unregisterDimension(tardis.getInteriorDimension())
+	}
+
 	def registerDimensions(isRegistering: Boolean): Unit = {
 		if (this.registeredDims == null) return
-		for (dimid: Int <- this.registeredDims) {
-			if (isRegistering)
-				DimensionManager.registerDimension(dimid, this.providerID)
-			else
-				DimensionManager.unregisterDimension(dimid)
+		for (i <- 0 until this.registeredDims.size()) {
+			val dimid: Int = this.registeredDims.get(i)
+			if (isRegistering) DimensionManager.registerDimension(dimid, this.providerID)
+			else DimensionManager.unregisterDimension(dimid)
 		}
 		this.registeredDims = null
 	}
@@ -102,6 +108,7 @@ object DimManager {
 	@SubscribeEvent
 	def serverConnection(event: ServerConnectionFromClientEvent): Unit = {
 		//event.manager.sendPacket(new PacketMCDimension())
+
 	}
 
 }
