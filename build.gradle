@@ -42,4 +42,3 @@ processResources {
         exclude '**/*.info'
     }
 }
-
