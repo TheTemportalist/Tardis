@@ -14,7 +14,7 @@ import net.minecraftforge.fml.relauncher.{Side, SideOnly}
  * @author TheTemportalist
  */
 @SideOnly(value = Side.CLIENT)
-class EntityPlayerTardis(player: EntityPlayerSP) extends EntityPlayerSP(
+class EntityPlayerTardis(player: EntityPlayerSP) extends EntityPlayerSP (
 	Minecraft.getMinecraft, player.getEntityWorld, player.sendQueue, player.getStatFileWriter
 ) {
 
@@ -101,6 +101,8 @@ class EntityPlayerTardis(player: EntityPlayerSP) extends EntityPlayerSP(
 		super.readFromNBT(tagCompund)
 		this.player.readFromNBT(tagCompund.getCompoundTag("playerTag"))
 	}
+
+
 
 }
 
