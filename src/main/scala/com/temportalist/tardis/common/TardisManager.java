@@ -9,40 +9,28 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * This is the class that will handle interactions between the following:
- * ~ Tardis -> Dimension (interior)
- * ~ Console -> Dimension
- * ~ Dimension -> Tardis
+ * This is the class that will handle interactions between the following: ~ Tardis -> Dimension (interior) ~ Console -> Dimension ~ Dimension -> Tardis
  * @author TheTemportalist XCompWiz
  */
 public class TardisManager {
 
-	private static final HashMap<Integer, EntityTardis> tardi =
-			new HashMap<Integer, EntityTardis>();
-	private static final HashMap<Integer, V3O> origins =
-			new HashMap<Integer, V3O>();
-	private static final ArrayList<Integer> consoles = new ArrayList<Integer>();
-
-
+	private static final HashMap<Integer, EntityTardis>	tardi		= new HashMap<Integer, EntityTardis>();
+	private static final HashMap<Integer, V3O>			origins		= new HashMap<Integer, V3O>();
+	private static final ArrayList<Integer>				consoles	= new ArrayList<Integer>();
 
 	public static void registerConsole(World world, boolean place) {
 		int dim = world.provider.getDimensionId();
 		if (TardisManager.tardi.containsKey(dim)) {
 			if (place) {
 				TardisManager.consoles.add(dim);
-			}
-			else {
+			} else {
 				TardisManager.consoles.remove(TardisManager.consoles.indexOf(dim));
 			}
 		}
 	}
 
 	public static void openInterface(EntityPlayer player) {
-		PlayerTardis.open(
-				TardisManager.getTardisForDimension(
-						player.getEntityWorld().provider.getDimensionId()
-				), player
-		);
+		PlayerTardis.open(TardisManager.getTardisForDimension(player.getEntityWorld().provider.getDimensionId()), player);
 	}
 
 	public static void registerTardis(EntityTardis tardis) {
@@ -51,7 +39,8 @@ public class TardisManager {
 		tardis.setInteriorDimension(852748931);
 	}
 
-	/** TODO finish this method based on starting point in dimension
+	//TODO finish this method based on starting point in dimension
+	/**
 	 * Moves player through the passed tardis' door (transfer player to tardis interior)
 	 * @param player The player passing into the interior
 	 * @param tardis The tardis that is the transfer unit
@@ -63,8 +52,7 @@ public class TardisManager {
 		if (into) {
 			dim = tardis.getInteriorDimension();
 			pos = TardisManager.origins.get(dim);
-		}
-		else {
+		} else {
 			dim = tardis.getEntityWorld().provider.getDimensionId();
 			pos = new V3O(tardis);
 			// todo translate pos based on tardis rotation (where tardis doors are frontwards)
@@ -76,8 +64,7 @@ public class TardisManager {
 	}
 
 	public static EntityTardis getTardisForDimension(int dimid) {
-		return TardisManager.tardi.containsKey(dimid) ?
-				TardisManager.tardi.get(dimid) : null;
+		return TardisManager.tardi.containsKey(dimid) ? TardisManager.tardi.get(dimid) : null;
 	}
 
 	public static boolean hasConsole(int dimid) {
