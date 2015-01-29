@@ -1,9 +1,14 @@
 *.class
 *.log
+.classpath
+.project
 .gradle
+.settings
+bin
 build
 idea
 jars
+run
 *.iml
 *.ipr
 *.iws
@@ -38,5 +43,4 @@ project/plugins/project/
 ehthumbs.db
 Thumbs.db
 
-gradlew.bat
-gradle/wrapper/gradle-wrapper.properties
+gradle*
