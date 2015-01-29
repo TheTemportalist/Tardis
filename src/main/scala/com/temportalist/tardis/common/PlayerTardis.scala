@@ -98,13 +98,13 @@ class PlayerTardis(p: EntityPlayer) extends ExtendedEntity(p) {
 			new PacketSyncExtendedProperties(this.getClass, tagCom)
 		if (this.player != null)
 			if (WorldHelper.isServer()) {
-				PacketHandler.sendToPlayer(Origin.pluginID, syncMessage, this.player)
+				PacketHandler.sendToPlayer(Origin.MODID, syncMessage, this.player)
 			}
 			else {
-				PacketHandler.sendToServer(Origin.pluginID, syncMessage)
+				PacketHandler.sendToServer(Origin.MODID, syncMessage)
 			}
 		else
-			LogHelper.info(Origin.pluginName, "Error: Null player in extended entity")
+			LogHelper.info(Origin.MODNAME, "Error: Null player in extended entity")
 
 	}
 
