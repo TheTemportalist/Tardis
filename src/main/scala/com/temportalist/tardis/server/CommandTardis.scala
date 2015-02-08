@@ -17,13 +17,13 @@ import net.minecraftforge.common.DimensionManager
  */
 class CommandTardis() extends CommandBase {
 
-	override def getName: String = "tardis"
+	override def getCommandName: String = "tardis"
 
-	override def getUsage(sender: ICommandSender): String = {
+	override def getCommandUsage(sender: ICommandSender): String = {
 		"tardis < open <at | new <at | point <x> <y> <z> > | point <x> <y> <z> > | close >"
 	}
 
-	override def execute(sender: ICommandSender, args: Array[String]): Unit = {
+	override def processCommand(sender: ICommandSender, args: Array[String]): Unit = {
 		if (args.length <= 0) return
 
 		var player: EntityPlayer = null
