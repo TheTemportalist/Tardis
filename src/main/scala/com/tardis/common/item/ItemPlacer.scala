@@ -4,6 +4,9 @@ import com.temportalist.origin.library.common.lib.vec.V3O
 import com.temportalist.origin.wrapper.common.item.ItemWrapper
 import net.minecraft.block.state.IBlockState
 import net.minecraft.block.{BlockFence, BlockLiquid}
+import net.minecraft.client.Minecraft
+import net.minecraft.client.renderer.ItemMeshDefinition
+import net.minecraft.client.resources.model.ModelResourceLocation
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemStack
@@ -17,6 +20,16 @@ import net.minecraft.world.World
  */
 class ItemPlacer(id: String, n: String, private var entClass: Class[_ <: Entity])
 		extends ItemWrapper(id, n) {
+
+	override def registerRendering(): Unit = {
+		Minecraft.getMinecraft.getRenderItem.getItemModelMesher.register(
+			this,
+			new ItemMeshDefinition {
+				override def getModelLocation(stack: ItemStack): ModelResourceLocation =
+					new ModelResourceLocation(getCompoundName(), "inventory")
+			}
+		)
+	}
 
 	override def onItemRightClick(
 			itemStack: ItemStack, world: World, player: EntityPlayer): ItemStack = {
@@ -47,7 +60,7 @@ class ItemPlacer(id: String, n: String, private var entClass: Class[_ <: Entity]
 		if (!playerIn.canPlayerEdit(pos.offset(side), side, stack)) return false
 
 		val state: IBlockState = worldIn.getBlockState(pos)
-		val posVec: V3O = new V3O(pos)
+		var posVec: V3O = new V3O(pos)
 
 		/*
 		if (state.getBlock == Blocks.mob_spawner) {
@@ -69,11 +82,14 @@ class ItemPlacer(id: String, n: String, private var entClass: Class[_ <: Entity]
 		}
 		*/
 
-		posVec.add(side)
+		posVec += side
 
-		posVec.add(new V3O(0.5, 0, 0.5))
-		if (side == EnumFacing.UP && state.getBlock.isInstanceOf[BlockFence])
-			posVec.add(0, 0.5, 0)
+		posVec += new V3O(
+			0.5,
+			if (side == EnumFacing.UP && state.getBlock.isInstanceOf[BlockFence]) 0.5
+			else 0d,
+			0.5
+		)
 
 		val facing: Int = MathHelper.floor_double(((playerIn.rotationYaw * 4F) / 360F) + 0.5D) & 3
 		var rotZ: Float = facing * 90

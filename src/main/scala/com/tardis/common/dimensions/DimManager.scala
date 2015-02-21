@@ -33,7 +33,7 @@ object DimManager {
 					val archObj: JsonObject = new JsonObject
 
 					val dimArray: JsonArray = new JsonArray
-					for (i <- 0 until this.registeredDims.size()) {
+					if (this.registeredDims != null) for (i <- 0 until this.registeredDims.size()) {
 						dimArray.add(new JsonPrimitive(this.registeredDims.get(i)))
 					}
 					archObj.add("TardisDimIDs", dimArray)
@@ -76,6 +76,7 @@ object DimManager {
 	var providerID: Int = 1210950780
 
 	def removeDim(tardis: EntityTardis): Unit = {
+		if (this.registeredDims == null) return
 		this.registeredDims.remove(tardis.getInteriorDimension())
 		DimensionManager.unregisterDimension(tardis.getInteriorDimension())
 	}

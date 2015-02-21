@@ -1,7 +1,22 @@
 {
     "variants": {
-        "normal": {
-        	"model": "tardis:tardis_door"
-        }
+        "facing=north,half=lower,open=false": { "model": "tardis:tardis_door" },
+        "facing=north,half=lower,open=true": { "model": "tardis:tardis_door" },
+        "facing=east,half=lower,open=false": { "model": "tardis:tardis_door" },
+        "facing=east,half=lower,open=true": { "model": "tardis:tardis_door" },
+		"facing=south,half=lower,open=false": { "model": "tardis:tardis_door" },
+        "facing=south,half=lower,open=true": { "model": "tardis:tardis_door" },
+        "facing=west,half=lower,open=false": { "model": "tardis:tardis_door" },
+        "facing=west,half=lower,open=true": { "model": "tardis:tardis_door" },
+
+        "facing=north,half=upper,open=false": { "model": "tardis:tardis_door" },
+        "facing=north,half=upper,open=true": { "model": "tardis:tardis_door" },
+        "facing=east,half=upper,open=false": { "model": "tardis:tardis_door" },
+        "facing=east,half=upper,open=true": { "model": "tardis:tardis_door" },
+        "facing=south,half=upper,open=false": { "model": "tardis:tardis_door" },
+        "facing=south,half=upper,open=true": { "model": "tardis:tardis_door" },
+        "facing=west,half=upper,open=false": { "model": "tardis:tardis_door" },
+        "facing=west,half=upper,open=true": { "model": "tardis:tardis_door" }
+
     }
 }

@@ -1,7 +1,7 @@
 {
     "parent": "builtin/generated",
     "textures": {
-        "layer0": "tardis:items/TARDIS"
+        "layer0": "tardis:items/tardis"
     },
     "display": {
         "thirdperson": {

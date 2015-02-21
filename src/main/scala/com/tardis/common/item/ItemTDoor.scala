@@ -49,10 +49,10 @@ class ItemTDoor(b: Block) extends ItemBlock(b) {
 		world.setBlockState(
 			uPos,
 			state.withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.UPPER),
-			2
+			3
 		)
-		world.notifyNeighborsOfStateChange(pos, block)
-		world.notifyNeighborsOfStateChange(uPos, block)
+		//world.notifyNeighborsOfStateChange(pos, block)
+		//world.notifyNeighborsOfStateChange(uPos, block)
 	}
 
 }

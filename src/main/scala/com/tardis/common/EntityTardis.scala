@@ -97,8 +97,10 @@ class EntityTardis(w: World) extends Entity(w) {
 
 	override def onCollideWithPlayer(player: EntityPlayer): Unit = {
 		if (WorldHelper.isInFieldOfView(this, player) && this.isDoorOpen()) {
-			//TardisManager.movePlayerThroughDoor(player, this, true)
-			println(this.getInteriorDimension())
+			if (player.getPositionVector.distanceTo(this.getPositionVector) <= 1.0d) {
+				//TardisManager.movePlayerThroughDoor(player, this, true)
+				println(this.getInteriorDimension())
+			}
 		}
 	}
 

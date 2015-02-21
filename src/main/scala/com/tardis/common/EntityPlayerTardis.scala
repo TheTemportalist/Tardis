@@ -43,15 +43,16 @@ class EntityPlayerTardis(player: EntityPlayerSP) extends EntityPlayerSP (
 			var tardisForward: Float = 0
 			var tardisStrafe: Float = 0
 
-			if (gs.keyBindForward.isKeyDown) tardisForward += 1
-			if (gs.keyBindBack.isKeyDown) tardisForward -= 1
-			if (gs.keyBindLeft.isKeyDown) tardisStrafe += 1
-			if (gs.keyBindRight.isKeyDown) tardisStrafe -= 1
+			val scale: Float = 1f
+			if (gs.keyBindForward.isKeyDown) tardisForward += scale
+			if (gs.keyBindBack.isKeyDown) tardisForward -= scale
+			if (gs.keyBindLeft.isKeyDown) tardisStrafe += scale
+			if (gs.keyBindRight.isKeyDown) tardisStrafe -= scale
 
 			if (tardisForward != 0 || tardisStrafe != 0) {
-				PacketHandler.sendToServer(Tardis.MODID,
-					new PacketTardisMover(tardisForward, tardisStrafe)
-				)
+				val packet = new PacketTardisMover(tardisForward, tardisStrafe)
+				PacketHandler.sendToServer(Tardis.MODID, packet)
+				PacketHandler.sendToAll(Tardis.MODID, packet)
 			}
 
 		}

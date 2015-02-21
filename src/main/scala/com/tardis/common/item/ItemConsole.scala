@@ -32,7 +32,7 @@ class ItemConsole(b: Block) extends ItemBlock(b) {
 			side = EnumFacing.UP
 		}
 		else if (!block.isReplaceable(worldIn, posIn)) {
-			pos.add(side)
+			pos += side
 		}
 
 		if (stack.stackSize == 0 ||

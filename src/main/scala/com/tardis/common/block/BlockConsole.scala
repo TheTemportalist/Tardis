@@ -2,14 +2,14 @@ package com.tardis.common.block
 
 import com.tardis.common.item.ItemConsole
 import com.tardis.common.tile.TEConsole
-import com.tardis.common.{TardisManager, Tardis}
+import com.tardis.common.{Tardis, TardisManager}
 import com.temportalist.origin.wrapper.common.block.BlockWrapperTE
 import net.minecraft.block.material.Material
 import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemStack
-import net.minecraft.util.{EnumFacing, BlockPos}
+import net.minecraft.util.{BlockPos, EnumFacing}
 import net.minecraft.world.World
 
 /**

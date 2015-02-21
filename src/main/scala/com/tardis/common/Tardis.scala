@@ -6,7 +6,7 @@ import com.tardis.common.item.ItemPlacer
 import com.tardis.common.tile.{TEConsole, TEDoor}
 import com.tardis.server.CommandTardis
 import com.temportalist.origin.library.common.Origin
-import com.temportalist.origin.library.common.helpers.RegisterHelper
+import com.temportalist.origin.library.common.handlers.RegisterHelper
 import com.temportalist.origin.wrapper.common.item.ItemWrapper
 import com.temportalist.origin.wrapper.common.{ModWrapper, ProxyWrapper}
 import net.minecraft.tileentity.TileEntity

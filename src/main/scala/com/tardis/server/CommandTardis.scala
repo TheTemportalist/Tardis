@@ -55,7 +55,7 @@ class CommandTardis() extends CommandBase {
 
 						val tardis: Entity = ItemPlacer.createEntity(
 							classOf[EntityTardis], world,
-							new V3O(player) + new V3O(facing).scale(2), dir * 90
+							new V3O(player) + (new V3O(facing) * 2), dir * 90
 						)
 
 						PlayerTardis.open(tardis.asInstanceOf[EntityTardis], player)

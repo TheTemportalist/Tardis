@@ -12,7 +12,7 @@ import net.minecraft.util.ResourceLocation
  * @author TheTemportalist
  */
 class RenderTardisDoor() extends TERenderer(
-	new ResourceLocation(Tardis.MODID, "textures/entity/tardis.png")
+	new ResourceLocation(Tardis.MODID, "textures/blocks/tardis_door2.png")
 ) {
 
 	override protected def render(tileEntity: TileEntity, renderPartialTicks: Float,
