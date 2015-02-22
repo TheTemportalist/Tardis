@@ -19,6 +19,7 @@ import net.minecraftforge.fml.common.network.FMLNetworkEvent.ServerConnectionFro
  *
  * @author TheTemportalist
  */
+@Deprecated
 object DimManager {
 
 	var registeredDims: util.List[Int] = null

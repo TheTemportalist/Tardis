@@ -10,9 +10,7 @@ import com.temportalist.origin.library.common.handlers.RegisterHelper
 import com.temportalist.origin.wrapper.common.item.ItemWrapper
 import com.temportalist.origin.wrapper.common.{ModWrapper, ProxyWrapper}
 import net.minecraft.tileentity.TileEntity
-import net.minecraftforge.event.entity.EntityJoinWorldEvent
 import net.minecraftforge.fml.common.event._
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.common.registry.{EntityRegistry, GameRegistry}
 import net.minecraftforge.fml.common.{Mod, SidedProxy}
 
@@ -90,14 +88,5 @@ object Tardis extends ModWrapper {
 	// TODO move to blockregister
 	def register(id: String, clazz: Class[_ <: TileEntity]): Unit =
 		GameRegistry.registerTileEntity(clazz, id)
-
-	@SubscribeEvent
-	def onJoinWorld(event: EntityJoinWorldEvent): Unit = {
-		event.entity match {
-			case tardis: EntityTardis =>
-				TardisManager.registerTardis(tardis)
-			case _ =>
-		}
-	}
 
 }
