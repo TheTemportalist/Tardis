@@ -2,12 +2,15 @@ package com.tardis.common.dimensions
 
 import java.util
 
+import com.tardis.common.Tardis
 import com.temportalist.origin.library.common.lib.vec.V3O
+import net.minecraft.block.BlockDoor
+import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.EnumCreatureType
 import net.minecraft.init.Blocks
-import net.minecraft.util.{IProgressUpdate, BlockPos}
+import net.minecraft.util.{EnumFacing, BlockPos, IProgressUpdate}
 import net.minecraft.world.World
-import net.minecraft.world.chunk.{ChunkPrimer, Chunk, IChunkProvider}
+import net.minecraft.world.chunk.{Chunk, ChunkPrimer, IChunkProvider}
 
 /**
  *
@@ -37,8 +40,27 @@ class VoidGenerator(world: World) extends IChunkProvider {
 	override def populate(provider: IChunkProvider, chunkX: Int, chunkY: Int): Unit = {
 		if (chunkX == 0 && chunkY == 0) {
 			val chunkOrigin: V3O = new V3O(chunkX * 16, 0, chunkY * 16)
-			this.world.setBlockState(chunkOrigin.toBlockPos(), Blocks.stone.getDefaultState, 2)
+
+			val platformState: IBlockState = Blocks.stone.getDefaultState
+			for (xOff <- -2 to 2) for (zOff <- -2 to 2) {
+				this.setBlock(chunkOrigin + new V3O(xOff, 0, zOff), platformState)
+			}
+
+			val state: IBlockState = Tardis.tDoor.getDefaultState.
+					withProperty(BlockDoor.FACING, EnumFacing.NORTH)
+			this.setBlock(
+				chunkOrigin + new V3O(0, 1, 0),
+				state.withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.LOWER)
+			)
+			this.setBlock(
+				chunkOrigin + new V3O(0, 2, 0),
+				state.withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.UPPER)
+			)
 		}
+	}
+
+	private def setBlock(pos: V3O, state: IBlockState): Unit = {
+		this.world.setBlockState(pos.toBlockPos(), state, 2)
 	}
 
 	override def recreateStructures(chunk: Chunk, chunkX: Int, chunkY: Int): Unit = {}

@@ -4,8 +4,11 @@ import com.temportalist.origin.library.common.lib.LogHelper;
 import com.temportalist.origin.library.common.lib.TeleporterCore;
 import com.temportalist.origin.library.common.lib.vec.V3O;
 import com.temportalist.origin.library.common.utility.Teleport;
+import net.minecraft.block.BlockDoor;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
@@ -22,7 +25,7 @@ import java.util.HashMap;
 public class TardisManager {
 
 	private static final HashMap<Integer, EntityTardis> tardi = new HashMap<Integer, EntityTardis>();
-	private static final HashMap<Integer, V3O> origins = new HashMap<Integer, V3O>();
+	private static final HashMap<Integer, V3O> doors = new HashMap<Integer, V3O>();
 	private static final ArrayList<Integer> consoles = new ArrayList<Integer>();
 
 	public static final int providerID = 1210950780;
@@ -55,7 +58,7 @@ public class TardisManager {
 			DimensionManager.registerDimension(id, TardisManager.providerID);
 			tardis.setInteriorDimension(id);
 			TardisManager.tardi.put(id, tardis);
-			TardisManager.origins.put(id, V3O.ZERO());
+			TardisManager.doors.put(id, V3O.ZERO());
 		}
 	}
 
@@ -74,7 +77,11 @@ public class TardisManager {
 		int dim;
 		if (into) {
 			dim = tardis.getInteriorDimension();
-			pos = TardisManager.origins.get(dim);
+			WorldServer dimWorld = DimensionManager.getWorld(dim);
+			V3O doorPos = TardisManager.doors.get(dim); // todo this isnt saved and therefore cleared on load
+			IBlockState doorState = dimWorld.getBlockState(doorPos.toBlockPos());
+			EnumFacing facing = (EnumFacing)doorState.getValue(BlockDoor.FACING);
+			pos = doorPos.$plus(facing);
 		}
 		else {
 			dim = tardis.getEntityWorld().provider.getDimensionId();
