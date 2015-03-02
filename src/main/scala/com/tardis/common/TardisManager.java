@@ -1,10 +1,13 @@
 package com.tardis.common;
 
 import com.temportalist.origin.library.common.lib.LogHelper;
+import com.temportalist.origin.library.common.lib.TeleporterCore;
 import com.temportalist.origin.library.common.lib.vec.V3O;
 import com.temportalist.origin.library.common.utility.Teleport;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
@@ -22,7 +25,7 @@ public class TardisManager {
 	private static final HashMap<Integer, V3O> origins = new HashMap<Integer, V3O>();
 	private static final ArrayList<Integer> consoles = new ArrayList<Integer>();
 
-	private static final int providerID = 1210950780;
+	public static final int providerID = 1210950780;
 
 	public static void registerConsole(World world, boolean place) {
 		int dim = world.provider.getDimensionId();
@@ -49,7 +52,6 @@ public class TardisManager {
 		if (TardisManager.tardi.containsKey(id))
 			LogHelper.info(Tardis.MODID(), "ERROR: id " + id + " already exists");
 		else {
-			// todo this errors because the providerID is invalid
 			DimensionManager.registerDimension(id, TardisManager.providerID);
 			tardis.setInteriorDimension(id);
 			TardisManager.tardi.put(id, tardis);
@@ -80,7 +82,12 @@ public class TardisManager {
 			// todo translate pos based on tardis rotation (where tardis doors are frontwards)
 		}
 		// todo change to encapsulated method in Teleport
-		Teleport.toDimension(player, dim);
+		if (player instanceof EntityPlayerMP && player.getEntityWorld() instanceof WorldServer) {
+			((EntityPlayerMP)player).mcServer.getConfigurationManager().transferPlayerToDimension(
+					(EntityPlayerMP)player, dim,
+					new TeleporterCore((WorldServer) player.getEntityWorld())
+			);
+		}
 		Teleport.toPoint(player, pos);
 
 	}

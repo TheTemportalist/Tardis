@@ -1,7 +1,7 @@
 package com.tardis.common
 
 import com.tardis.common.block.{BlockConsole, BlockTardisDoor}
-import com.tardis.common.dimensions.DimManager
+import com.tardis.common.dimensions.{DimManager, InyardProvider}
 import com.tardis.common.item.ItemPlacer
 import com.tardis.common.tile.{TEConsole, TEDoor}
 import com.tardis.server.CommandTardis
@@ -9,7 +9,9 @@ import com.temportalist.origin.library.common.Origin
 import com.temportalist.origin.library.common.handlers.RegisterHelper
 import com.temportalist.origin.wrapper.common.item.ItemWrapper
 import com.temportalist.origin.wrapper.common.{ModWrapper, ProxyWrapper}
+import net.minecraft.entity.Entity
 import net.minecraft.tileentity.TileEntity
+import net.minecraftforge.common.DimensionManager
 import net.minecraftforge.fml.common.event._
 import net.minecraftforge.fml.common.registry.{EntityRegistry, GameRegistry}
 import net.minecraftforge.fml.common.{Mod, SidedProxy}
@@ -51,7 +53,11 @@ object Tardis extends ModWrapper {
 			classOf[EntityTardis], "tardis", 0, this, 80, 3, true
 		)
 		// Item Tardis
-		this.tardis = new ItemPlacer(this.MODID, "tardis", classOf[EntityTardis])
+		this.tardis = new ItemPlacer(this.MODID, "tardis", classOf[EntityTardis]) {
+			override def preSpawn(entity: Entity): Unit = {
+				TardisManager.registerTardis(entity.asInstanceOf[EntityTardis])
+			}
+		}
 		Origin.addItemToTab(this.tardis)
 
 		this.register("console", classOf[TEConsole])
@@ -66,6 +72,8 @@ object Tardis extends ModWrapper {
 			classOf[PacketTardisMover]
 		)
 		RegisterHelper.registerHandler(DimManager)
+
+		DimensionManager.registerProviderType(TardisManager.providerID, classOf[InyardProvider], true)
 
 	}
 

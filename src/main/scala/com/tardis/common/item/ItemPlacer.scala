@@ -74,9 +74,9 @@ class ItemPlacer(id: String, n: String, private var entClass: Class[_ <: Entity]
 		if (playerIn.isSneaking) rotZ += 180
 
 		rotZ = (Math.round(playerIn.rotationYaw) % 360D).toFloat
-		//println ("Player Yaw: " + rotZ)
 		val entity: Entity = ItemPlacer.createEntity(this.entClass, worldIn, posVec, rotZ)
-		//entity.setPositionAndUpdate(posVec.x, posVec.y, posVec.z)
+		this.preSpawn(entity)
+		worldIn.spawnEntityInWorld(entity)
 
 		this.playSummonSound(posVec.toBlockCoord(worldIn))
 
@@ -95,19 +95,18 @@ class ItemPlacer(id: String, n: String, private var entClass: Class[_ <: Entity]
 
 	def playSummonSound(pos: BlockPos): Unit = {}
 
+	def preSpawn(entity: Entity): Unit = {}
+
 }
 
 object ItemPlacer {
 
-	def createEntity(entClass: Class[_ <: Entity], world: World, pos: V3O,
-			rotZ: Float): Entity = {
+	def createEntity(entClass: Class[_ <: Entity], world: World, pos: V3O, rotZ: Float): Entity = {
 		var entity: Entity = null
 		try {
 			if (entClass != null) {
 				entity = entClass.getConstructor(classOf[World]).newInstance(world)
-
 				entity.setLocationAndAngles(pos.x, pos.y, pos.z, rotZ, 0.0F)
-				world.spawnEntityInWorld(entity)
 			}
 		}
 		catch {

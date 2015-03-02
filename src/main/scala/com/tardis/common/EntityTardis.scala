@@ -1,7 +1,6 @@
 package com.tardis.common
 
 import com.tardis.common.dimensions.DimManager
-import com.temportalist.origin.library.common.lib.LogHelper
 import com.temportalist.origin.library.common.utility.WorldHelper
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
@@ -17,11 +16,6 @@ import net.minecraft.world.World
 class EntityTardis(w: World) extends Entity(w) {
 
 	this.setSize(1F, 2.5F)
-
-	if (this.getInteriorDimension() == 0) {
-		LogHelper.info(Tardis.MODID, "Registering tardis and dimension")
-		TardisManager.registerTardis(this)
-	}
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -104,8 +98,8 @@ class EntityTardis(w: World) extends Entity(w) {
 	override def onCollideWithPlayer(player: EntityPlayer): Unit = {
 		if (WorldHelper.isInFieldOfView(this, player) && this.isDoorOpen()) {
 			if (player.getPositionVector.distanceTo(this.getPositionVector) <= 1.3d) {
-				//TardisManager.movePlayerThroughDoor(player, this, true)
-				println(this.getInteriorDimension())
+				TardisManager.movePlayerThroughDoor(player, this, true)
+				//println(this.getInteriorDimension())
 			}
 		}
 	}
