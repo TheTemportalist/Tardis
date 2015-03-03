@@ -2,13 +2,11 @@ package com.tardis.common;
 
 import com.tardis.common.dimensions.InyardSavedData;
 import com.temportalist.origin.library.common.lib.LogHelper;
-import com.temportalist.origin.library.common.lib.TeleporterCore;
 import com.temportalist.origin.library.common.lib.vec.V3O;
-import com.temportalist.origin.library.common.utility.Teleport;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.world.WorldSavedData;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -58,16 +56,11 @@ public class TardisManager {
 			DimensionManager.registerDimension(id, TardisManager.providerID);
 			tardis.setInteriorDimension(id);
 			TardisManager.tardi.put(id, tardis);
-			TardisManager.dimNames.put(id, "TARDISDim" + TardisManager.dimNames.size());
+			TardisManager.dimNames.put(id, "TARDISDim" + id);
 			System.out.println("Registered: " + TardisManager.dimNames.get(id));
 			TardisManager.doors.put(id, V3O.ZERO());
 
-			WorldServer world = MinecraftServer.getServer().worldServerForDimension(id);
-			InyardSavedData data = new InyardSavedData(TardisManager.getDimName(id));
-			data.setDim(id);
-			world.getMapStorage().setData(TardisManager.getDimName(id), data);
-
-			data.markDirty();
+			TardisManager.setData(id).markDirty();
 
 		}
 	}
@@ -88,12 +81,14 @@ public class TardisManager {
 		if (into) {
 			dim = tardis.getInteriorDimension();
 
-			TardisManager.load(dim);
+			WorldSavedData data = TardisManager.load(dim);
+			System.out.println(TardisManager.doors.toString());
 
 			//WorldServer dimWorld = DimensionManager.getWorld(dim);
 			V3O doorPos = TardisManager.doors.get(dim); // todo this isnt saved and therefore cleared on load
 			//IBlockState doorState = dimWorld.getBlockState(doorPos.toBlockPos());
 			//EnumFacing facing = (EnumFacing)doorState.getValue(BlockDoor.FACING);
+			if (doorPos == null) return;
 			pos = doorPos.$plus(EnumFacing.NORTH);
 
 		}
@@ -103,6 +98,7 @@ public class TardisManager {
 			// todo translate pos based on tardis rotation (where tardis doors are frontwards)
 		}
 		// todo change to encapsulated method in Teleport
+		/*
 		if (player instanceof EntityPlayerMP && player.getEntityWorld() instanceof WorldServer) {
 			((EntityPlayerMP)player).mcServer.getConfigurationManager().transferPlayerToDimension(
 					(EntityPlayerMP)player, dim,
@@ -110,11 +106,16 @@ public class TardisManager {
 			);
 		}
 		Teleport.toPoint(player, pos);
+		*/
 
 	}
 
 	public static String getDimName(int dimid) {
 		return TardisManager.dimNames.get(dimid);
+	}
+
+	public static void setDimName(int dimid, String name) {
+		TardisManager.dimNames.put(dimid, name);
 	}
 
 	public static EntityTardis getTardisForDimension(int dimid) {
@@ -133,10 +134,30 @@ public class TardisManager {
 		TardisManager.doors.put(dimid, pos);
 	}
 
-	public static void load(int dimid) {
-		MinecraftServer.getServer().worldServerForDimension(dimid).getMapStorage().loadData(
-				InyardSavedData.class, TardisManager.getDimName(dimid)
+	public static WorldServer getWorld(int dimid) {
+		return MinecraftServer.getServer().worldServerForDimension(dimid);
+	}
+
+	public static WorldSavedData setData(int dimid) {
+		String key = TardisManager.getDimName(dimid);
+		InyardSavedData data = new InyardSavedData(key);
+		data.setDim(dimid);
+		TardisManager.getWorld(dimid).getMapStorage().setData(key, data);
+		return data;
+	}
+
+	public static WorldSavedData load(int dimid) {
+		String name = TardisManager.getDimName(dimid);
+		WorldServer world = TardisManager.getWorld(dimid);
+		WorldSavedData data = world.getMapStorage().loadData(
+				InyardSavedData.class, name
 		);
+		if (data == null) {
+			System.out.println("Data was null");
+			data = new InyardSavedData(name);
+			world.getMapStorage().setData(name, data);
+		}
+		return data;
 	}
 
 	/*

@@ -20,6 +20,7 @@ class InyardSavedData(name: String) extends WorldSavedData(name) {
 	override def writeToNBT(tagCom: NBTTagCompound): Unit = {
 		System.out.println("Writing dim " + this.dimID)
 		tagCom.setInteger("dimID", this.dimID)
+		tagCom.setString("dimName", TardisManager.getDimName(this.dimID))
 		TardisManager.getDoorPos(this.dimID).writeTo(tagCom, "doorPos")
 		val tardis: EntityTardis = TardisManager.getTardisForDimension(this.dimID)
 		tagCom.setInteger("tardisDimID", tardis.getEntityWorld.provider.getDimensionId)
@@ -30,6 +31,7 @@ class InyardSavedData(name: String) extends WorldSavedData(name) {
 	override def readFromNBT(tagCom: NBTTagCompound): Unit = {
 		this.dimID = tagCom.getInteger("dimID")
 		System.out.println("Reading dim " + this.dimID)
+		TardisManager.setDimName(this.dimID, tagCom.getString("dimName"))
 		TardisManager.setDoorPos(this.dimID, V3O.readFrom(tagCom, "doorPos"))
 		TardisManager.setTardis(this.dimID, DimensionManager.getWorld(
 			tagCom.getInteger("tardisDimID")
