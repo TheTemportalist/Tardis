@@ -11,7 +11,9 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * This is the class that will handle interactions between the following: ~ Tardis -> Dimension (interior) ~ Console -> Dimension ~ Dimension -> Tardis
@@ -20,6 +22,7 @@ import java.util.HashMap;
  */
 public class TardisManager {
 
+	public static final List<Integer> registeredDims = new ArrayList<Integer>();
 	private static final HashMap<Integer, EntityTardis> tardi = new HashMap<Integer, EntityTardis>();
 	private static final HashMap<Integer, String> dimNames = new HashMap<Integer, String>();
 	private static final HashMap<Integer, V3O> doors = new HashMap<Integer, V3O>();
@@ -40,6 +43,13 @@ public class TardisManager {
 	}
 	*/
 
+	public static void registerDimensions(boolean isRegistering) {
+		for (Integer id : TardisManager.registeredDims) {
+			if (isRegistering) DimensionManager.registerDimension(id, TardisManager.providerID);
+			else DimensionManager.unregisterDimension(id);
+		}
+	}
+
 	public static void openInterface(EntityPlayer player) {
 		PlayerTardis.open(TardisManager.getTardisForDimension(
 				player.getEntityWorld().provider.getDimensionId()
@@ -53,6 +63,7 @@ public class TardisManager {
 		if (TardisManager.tardi.containsKey(id))
 			LogHelper.info(Tardis.MODID(), "ERROR: id " + id + " already exists");
 		else {
+			TardisManager.registeredDims.add(id);
 			DimensionManager.registerDimension(id, TardisManager.providerID);
 			tardis.setInteriorDimension(id);
 			TardisManager.tardi.put(id, tardis);
@@ -107,6 +118,7 @@ public class TardisManager {
 		}
 		Teleport.toPoint(player, pos);
 		*/
+		//Teleport.toDimensionPoint(player, pos, dim);
 
 	}
 

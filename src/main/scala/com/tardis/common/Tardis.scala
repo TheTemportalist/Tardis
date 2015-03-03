@@ -1,5 +1,9 @@
 package com.tardis.common
 
+import java.io.{File, FileReader}
+
+import com.google.common.io.Files
+import com.google.gson._
 import com.tardis.common.block.{BlockConsole, BlockTardisDoor}
 import com.tardis.common.dimensions.{DimManager, InyardProvider}
 import com.tardis.common.item.ItemPlacer
@@ -8,12 +12,16 @@ import com.tardis.server.CommandTardis
 import com.temportalist.origin.api.IProxy
 import com.temportalist.origin.library.common.Origin
 import com.temportalist.origin.library.common.handlers.RegisterHelper
-import com.temportalist.origin.wrapper.common.item.ItemWrapper
+import com.temportalist.origin.library.common.utility.{Json, Scala}
 import com.temportalist.origin.wrapper.common.ModWrapper
+import com.temportalist.origin.wrapper.common.item.ItemWrapper
 import net.minecraft.entity.Entity
 import net.minecraft.tileentity.TileEntity
+import net.minecraft.world.WorldServer
 import net.minecraftforge.common.DimensionManager
+import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.fml.common.event._
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.common.registry.{EntityRegistry, GameRegistry}
 import net.minecraftforge.fml.common.{Mod, SidedProxy}
 
@@ -92,6 +100,55 @@ object Tardis extends ModWrapper {
 	@Mod.EventHandler
 	def serverStart(event: FMLServerStartingEvent): Unit = {
 		event.registerServerCommand(new CommandTardis())
+	}
+
+	@SubscribeEvent
+	def onSave(event: WorldEvent.Save): Unit = {
+		event.world match {
+			case server: WorldServer =>
+				val dir: File = server.getSaveHandler.getWorldDirectory
+				if (dir != null) {
+					// TODO put this in the Json Origin helper class
+					val archObj: JsonObject = new JsonObject
+
+					val dimArray: JsonArray = new JsonArray
+					Scala.foreach(TardisManager.registeredDims, (index: Int, value: Integer) => {
+						dimArray.add(new JsonPrimitive(value))
+					})
+
+					archObj.add("TardisDimIDs", dimArray)
+
+					Files.write(
+						Json.toReadableString(new Gson().toJson(archObj)).getBytes,
+						new File(dir, "tardis.json")
+					)
+
+					TardisManager.registerDimensions(isRegistering = false)
+				}
+			case _ =>
+		}
+	}
+
+	@SubscribeEvent
+	def onLoad(event: WorldEvent.Load): Unit = {
+		event.world match {
+			case server: WorldServer =>
+				val dir: File = server.getSaveHandler.getWorldDirectory
+				if (dir != null) {
+					val file: File = new File(dir, "tardis.json")
+					if (!file.exists()) return
+					val archObj: JsonObject = new JsonParser().parse(
+						new FileReader(file)).getAsJsonObject
+
+					val dimArray: JsonArray = archObj.get("TardisDimIDs").getAsJsonArray
+					Scala.foreach(dimArray.iterator(), (index: Int, element: JsonElement) => {
+						val did = TardisManager.registeredDims.add(element.getAsInt)
+					})
+
+					TardisManager.registerDimensions(isRegistering = true)
+				}
+			case _ =>
+		}
 	}
 
 	// TODO move to blockregister
