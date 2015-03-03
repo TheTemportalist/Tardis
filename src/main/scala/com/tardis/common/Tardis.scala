@@ -5,10 +5,11 @@ import com.tardis.common.dimensions.{DimManager, InyardProvider}
 import com.tardis.common.item.ItemPlacer
 import com.tardis.common.tile.{TEConsole, TEDoor}
 import com.tardis.server.CommandTardis
+import com.temportalist.origin.api.IProxy
 import com.temportalist.origin.library.common.Origin
 import com.temportalist.origin.library.common.handlers.RegisterHelper
 import com.temportalist.origin.wrapper.common.item.ItemWrapper
-import com.temportalist.origin.wrapper.common.{ModWrapper, ProxyWrapper}
+import com.temportalist.origin.wrapper.common.ModWrapper
 import net.minecraft.entity.Entity
 import net.minecraft.tileentity.TileEntity
 import net.minecraftforge.common.DimensionManager
@@ -34,7 +35,7 @@ object Tardis extends ModWrapper {
 	final val serverProxy = "com.tardis.server.ProxyServer"
 
 	@SidedProxy(clientSide = this.clientProxy, serverSide = this.serverProxy)
-	var proxy: ProxyWrapper = null
+	var proxy: IProxy = null
 
 	var tardis: ItemWrapper = null
 	var console: BlockConsole = null

@@ -1,20 +1,18 @@
 package com.tardis.common;
 
+import com.tardis.common.dimensions.InyardSavedData;
 import com.temportalist.origin.library.common.lib.LogHelper;
 import com.temportalist.origin.library.common.lib.TeleporterCore;
 import com.temportalist.origin.library.common.lib.vec.V3O;
 import com.temportalist.origin.library.common.utility.Teleport;
-import net.minecraft.block.BlockDoor;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -25,11 +23,12 @@ import java.util.HashMap;
 public class TardisManager {
 
 	private static final HashMap<Integer, EntityTardis> tardi = new HashMap<Integer, EntityTardis>();
+	private static final HashMap<Integer, String> dimNames = new HashMap<Integer, String>();
 	private static final HashMap<Integer, V3O> doors = new HashMap<Integer, V3O>();
-	private static final ArrayList<Integer> consoles = new ArrayList<Integer>();
 
 	public static final int providerID = 1210950780;
 
+	/*
 	public static void registerConsole(World world, boolean place) {
 		int dim = world.provider.getDimensionId();
 		if (TardisManager.tardi.containsKey(dim)) {
@@ -41,6 +40,7 @@ public class TardisManager {
 			}
 		}
 	}
+	*/
 
 	public static void openInterface(EntityPlayer player) {
 		PlayerTardis.open(TardisManager.getTardisForDimension(
@@ -58,7 +58,17 @@ public class TardisManager {
 			DimensionManager.registerDimension(id, TardisManager.providerID);
 			tardis.setInteriorDimension(id);
 			TardisManager.tardi.put(id, tardis);
+			TardisManager.dimNames.put(id, "TARDISDim" + TardisManager.dimNames.size());
+			System.out.println("Registered: " + TardisManager.dimNames.get(id));
 			TardisManager.doors.put(id, V3O.ZERO());
+
+			WorldServer world = MinecraftServer.getServer().worldServerForDimension(id);
+			InyardSavedData data = new InyardSavedData(TardisManager.getDimName(id));
+			data.setDim(id);
+			world.getMapStorage().setData(TardisManager.getDimName(id), data);
+
+			data.markDirty();
+
 		}
 	}
 
@@ -77,11 +87,15 @@ public class TardisManager {
 		int dim;
 		if (into) {
 			dim = tardis.getInteriorDimension();
-			WorldServer dimWorld = DimensionManager.getWorld(dim);
+
+			TardisManager.load(dim);
+
+			//WorldServer dimWorld = DimensionManager.getWorld(dim);
 			V3O doorPos = TardisManager.doors.get(dim); // todo this isnt saved and therefore cleared on load
-			IBlockState doorState = dimWorld.getBlockState(doorPos.toBlockPos());
-			EnumFacing facing = (EnumFacing)doorState.getValue(BlockDoor.FACING);
-			pos = doorPos.$plus(facing);
+			//IBlockState doorState = dimWorld.getBlockState(doorPos.toBlockPos());
+			//EnumFacing facing = (EnumFacing)doorState.getValue(BlockDoor.FACING);
+			pos = doorPos.$plus(EnumFacing.NORTH);
+
 		}
 		else {
 			dim = tardis.getEntityWorld().provider.getDimensionId();
@@ -99,12 +113,36 @@ public class TardisManager {
 
 	}
 
+	public static String getDimName(int dimid) {
+		return TardisManager.dimNames.get(dimid);
+	}
+
 	public static EntityTardis getTardisForDimension(int dimid) {
 		return TardisManager.tardi.containsKey(dimid) ? TardisManager.tardi.get(dimid) : null;
 	}
 
+	public static void setTardis(int dimid, EntityTardis tardis) {
+		TardisManager.tardi.put(dimid, tardis);
+	}
+
+	public static V3O getDoorPos(int dimid) {
+		return TardisManager.doors.get(dimid);
+	}
+
+	public static void setDoorPos(int dimid, V3O pos) {
+		TardisManager.doors.put(dimid, pos);
+	}
+
+	public static void load(int dimid) {
+		MinecraftServer.getServer().worldServerForDimension(dimid).getMapStorage().loadData(
+				InyardSavedData.class, TardisManager.getDimName(dimid)
+		);
+	}
+
+	/*
 	public static boolean hasConsole(int dimid) {
 		return TardisManager.tardi.containsKey(dimid) && TardisManager.consoles.contains(dimid);
 	}
+	*/
 
 }

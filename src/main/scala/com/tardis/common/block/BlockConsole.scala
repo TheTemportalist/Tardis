@@ -27,12 +27,12 @@ class BlockConsole(name: String)
 
 	override def onBlockPlacedBy(worldIn: World, pos: BlockPos, state: IBlockState,
 			placer: EntityLivingBase, stack: ItemStack): Unit = {
-		TardisManager.registerConsole(worldIn, true)
+		//TardisManager.registerConsole(worldIn, true)
 	}
 
 	override def breakBlock(worldIn: World, pos: BlockPos, state: IBlockState): Unit = {
 		super.breakBlock(worldIn, pos, state)
-		TardisManager.registerConsole(worldIn, false)
+		//TardisManager.registerConsole(worldIn, false)
 	}
 
 	override def onBlockActivated(worldIn: World, pos: BlockPos, state: IBlockState,

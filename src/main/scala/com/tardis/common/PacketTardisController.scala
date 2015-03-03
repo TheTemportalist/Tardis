@@ -2,42 +2,28 @@ package com.tardis.common
 
 import com.temportalist.origin.library.common.nethandler.IPacket
 import com.temportalist.origin.library.common.utility.WorldHelper
-import io.netty.buffer.ByteBuf
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraftforge.fml.common.network.ByteBufUtils
 
 /**
  *
  *
  * @author TheTemportalist
  */
-class PacketTardisController(var operation: String, var dimID: Int, var entityID: Int) extends IPacket {
+class PacketTardisController() extends IPacket {
 
-	def this(oper: String) {
-		this(oper, 0, 0)
+	def this(operation: String, dimID: Int, entityID: Int) {
+		this()
+		this.add(operation, dimID, entityID)
 	}
 
-	def this() {
-		this("")
-	}
-
-	override def writeTo(buffer: ByteBuf): Unit = {
-		ByteBufUtils.writeUTF8String(buffer, this.operation)
-		buffer.writeInt(this.dimID)
-		buffer.writeInt(this.entityID)
-	}
-
-	override def readFrom(buffer: ByteBuf): Unit = {
-		this.operation = ByteBufUtils.readUTF8String(buffer)
-		this.dimID = buffer.readInt()
-		this.entityID = buffer.readInt()
-	}
-
-	override def handle(player: EntityPlayer): Unit = {
+	override def handle(player: EntityPlayer, isServer: Boolean): Unit = {
+		val op: String = this.get[String]
+		val dim: Int = this.get[Int]
+		val eID: Int = this.get[Int]
 		val pt: PlayerTardis = PlayerTardis.get(player)
-		this.operation match {
+		op match {
 			case "open" =>
-				pt.setTardis(this.dimID, this.entityID)
+				pt.setTardis(dim, eID)
 				if (WorldHelper.isClient()) pt.openRender()
 			case "close" =>
 				if (WorldHelper.isClient()) pt.closeRender()

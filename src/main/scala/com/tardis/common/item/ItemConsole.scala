@@ -1,14 +1,13 @@
 package com.tardis.common.item
 
-import com.tardis.common.TardisManager
 import com.temportalist.origin.library.common.lib.vec.V3O
 import net.minecraft.block.state.IBlockState
+import net.minecraft.block.{Block, BlockSnow}
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
-import net.minecraft.item.{ItemStack, ItemBlock}
-import net.minecraft.block.{BlockSnow, Block}
-import net.minecraft.util.{EnumFacing, BlockPos}
+import net.minecraft.item.{ItemBlock, ItemStack}
+import net.minecraft.util.{BlockPos, EnumFacing}
 import net.minecraft.world.World
 
 /**
@@ -64,7 +63,7 @@ class ItemConsole(b: Block) extends ItemBlock(b) {
 	}
 
 	def canPlaceAt(world: World, pos: BlockPos, side: EnumFacing, player: EntityPlayer): Boolean = {
-		!TardisManager.hasConsole(world.provider.getDimensionId)
+		true//!TardisManager.hasConsole(world.provider.getDimensionId)
 	}
 
 }

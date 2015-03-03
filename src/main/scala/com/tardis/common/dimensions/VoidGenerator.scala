@@ -60,7 +60,7 @@ class VoidGenerator(world: World) extends IChunkProvider {
 	}
 
 	private def setBlock(pos: V3O, state: IBlockState): Unit = {
-		this.world.setBlockState(pos.toBlockPos(), state, 2)
+		this.world.setBlockState(pos.toBlockPos(), state, 3)
 	}
 
 	override def recreateStructures(chunk: Chunk, chunkX: Int, chunkY: Int): Unit = {}

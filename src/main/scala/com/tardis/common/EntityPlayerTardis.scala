@@ -52,7 +52,7 @@ class EntityPlayerTardis(player: EntityPlayerSP) extends EntityPlayerSP (
 			if (tardisForward != 0 || tardisStrafe != 0) {
 				val packet = new PacketTardisMover(tardisForward, tardisStrafe)
 				PacketHandler.sendToServer(Tardis.MODID, packet)
-				PacketHandler.sendToAll(Tardis.MODID, packet)
+				PacketHandler.sendToClients(Tardis.MODID, packet)
 			}
 
 		}
