@@ -2,11 +2,13 @@ package com.tardis.common
 
 import java.util.UUID
 
+import com.tardis.client.EntityPTSP
 import com.temportalist.origin.library.common.Origin
 import com.temportalist.origin.library.common.lib.LogHelper
 import com.temportalist.origin.library.common.nethandler.{IPacket, PacketHandler}
 import com.temportalist.origin.library.common.utility.WorldHelper
 import com.temportalist.origin.wrapper.common.extended.{ExtendedEntity, ExtendedEntityHandler}
+import net.minecraft.client.Minecraft
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraftforge.common.DimensionManager
@@ -44,10 +46,10 @@ class PlayerTardis(p: EntityPlayer) extends ExtendedEntity(p) {
 		else this.setTardis(tardis.getEntityWorld.provider.getDimensionId, tardis.getUniqueID)
 	}
 
-	def isControllingTardis(): Boolean = this.tardisUUID != null
+	def hasTardisToControl(): Boolean = this.tardisUUID != null
 
 	def getTardis(): EntityTardis = {
-		if (this.isControllingTardis()) {
+		if (this.hasTardisToControl()) {
 			DimensionManager.getWorld(this.tardisDim).getEntityFromUuid(this.tardisUUID)
 					.asInstanceOf[EntityTardis]
 		}
@@ -56,22 +58,17 @@ class PlayerTardis(p: EntityPlayer) extends ExtendedEntity(p) {
 	}
 
 	@SideOnly(value = Side.CLIENT)
-	def openRender(): Unit = {
-		/*
-		if (this.isControllingTardis()) {
-			val tardis: EntityTardis = this.getTardis()
-			if (tardis != null) {
+	def openRender(tardis: EntityTardis): Unit = {
+		if (tardis == null) return
+		if (!this.hasTardisToControl())
+			this.setTardis(tardis)
 
-				Minecraft.getMinecraft.setRenderViewEntity(tardis)
-				this.originalPOV = Minecraft.getMinecraft.gameSettings.thirdPersonView
-				Minecraft.getMinecraft.gameSettings.thirdPersonView = 1
+		Minecraft.getMinecraft.setRenderViewEntity(tardis)
+		this.originalPOV = Minecraft.getMinecraft.gameSettings.thirdPersonView
+		Minecraft.getMinecraft.gameSettings.thirdPersonView = 1
 
-				EntityPlayerTardis.open()
+		Minecraft.getMinecraft.thePlayer = new EntityPTSP(Minecraft.getMinecraft.thePlayer, tardis)
 
-			}
-		}
-		*/
-		this.syncEntity()
 	}
 
 	@SideOnly(value = Side.CLIENT)
@@ -116,11 +113,9 @@ object PlayerTardis {
 	}
 
 	def open(tardis: EntityTardis, player: EntityPlayer): Unit = {
-		/*
-		this.send(player, new PacketTardisController("open",
-			tardis.getEntityWorld.provider.getDimensionId, tardis.getEntityId
-		))
-		*/
+		val pt: PlayerTardis = PlayerTardis.get(player)
+		pt.setTardis(tardis)
+		pt.openRender(tardis)
 	}
 
 	def close(player: EntityPlayer): Unit = {

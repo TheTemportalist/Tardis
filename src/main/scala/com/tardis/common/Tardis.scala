@@ -3,6 +3,7 @@ package com.tardis.common
 import com.tardis.common.block.{BlockConsole, BlockTardisDoor}
 import com.tardis.common.dimensions.TardisManager
 import com.tardis.common.item.ItemPlacer
+import com.tardis.common.network.{PacketDimensionRegistration, PacketMoveTardis}
 import com.tardis.common.tile.{TEConsole, TEDoor}
 import com.tardis.server.CommandTardis
 import com.temportalist.origin.api.IProxy
@@ -75,11 +76,9 @@ object Tardis extends ModWrapper {
 		this.tDoor = new BlockTardisDoor("tardis_door")
 		Origin.addBlockToTab(this.tDoor)
 
-		/*
-		RegisterHelper.registerPacketHandler(this.MODID, classOf[PacketTardisController],
-			classOf[PacketTardisMover]
+		RegisterHelper.registerPacketHandler(this.MODID, classOf[PacketMoveTardis],
+			classOf[PacketDimensionRegistration]
 		)
-		*/
 
 		TardisManager.registerProviderType()
 

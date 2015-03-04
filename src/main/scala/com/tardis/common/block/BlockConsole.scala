@@ -2,7 +2,7 @@ package com.tardis.common.block
 
 import com.tardis.common.dimensions.TardisManager
 import com.tardis.common.tile.TEConsole
-import com.tardis.common.{EntityTardis, Tardis}
+import com.tardis.common.{PlayerTardis, EntityTardis, Tardis}
 import com.temportalist.origin.wrapper.common.block.BlockWrapperTE
 import net.minecraft.block.material.Material
 import net.minecraft.block.state.IBlockState
@@ -29,12 +29,15 @@ class BlockConsole(name: String)
 			case EnumFacing.UP =>
 				val tardis: EntityTardis = TardisManager.getTardis(worldIn)
 				if (tardis != null) {
+					/*
 					tardis.setPositionAndUpdate(
 						tardis.posX + 1, tardis.posY, tardis.posZ
 					)
+					*/
+					PlayerTardis.open(tardis, playerIn)
 				}
 				else {
-					println ("null tardis in console activation")
+					println("null tardis in console activation")
 				}
 				true
 			case _ =>
