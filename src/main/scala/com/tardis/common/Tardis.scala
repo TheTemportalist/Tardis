@@ -55,7 +55,12 @@ object Tardis extends ModWrapper {
 		// Item Tardis
 		this.tardis = new ItemPlacer(this.MODID, "tardis", classOf[EntityTardis]) {
 			override def preSpawn(entity: Entity): Unit = {
-				TardisManager.registerTardis(entity.asInstanceOf[EntityTardis])
+				new Thread(new Runnable {
+					override def run(): Unit = {
+						TardisManager.registerTardis(entity.asInstanceOf[EntityTardis])
+					}
+				}).start()
+
 			}
 		}
 		Origin.addItemToTab(this.tardis)

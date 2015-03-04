@@ -1,8 +1,8 @@
 package com.tardis.common.block
 
+import com.tardis.common.Tardis
 import com.tardis.common.item.ItemConsole
 import com.tardis.common.tile.TEConsole
-import com.tardis.common.{Tardis, TardisManager1}
 import com.temportalist.origin.wrapper.common.block.BlockWrapperTE
 import net.minecraft.block.material.Material
 import net.minecraft.block.state.IBlockState
@@ -40,7 +40,7 @@ class BlockConsole(name: String)
 			hitZ: Float): Boolean = {
 		side match {
 			case EnumFacing.UP =>
-				TardisManager1.openInterface(playerIn)
+				//TardisManager1.openInterface(playerIn)
 				return true
 			case _ =>
 		}

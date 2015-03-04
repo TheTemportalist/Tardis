@@ -5,7 +5,7 @@ import java.util.Random
 
 import com.tardis.common.item.ItemTDoor
 import com.tardis.common.tile.TEDoor
-import com.tardis.common.{TardisManager1, EntityTardis, Tardis}
+import com.tardis.common.{EntityTardis, Tardis}
 import com.temportalist.origin.library.common.utility.Generic
 import com.temportalist.origin.wrapper.common.block.BlockWrapperTE
 import net.minecraft.block.BlockDoor._
@@ -57,7 +57,7 @@ class BlockTardisDoor(n: String) extends BlockWrapperTE(
 			return true
 		}
 		else {
-			TardisManager1.leaveDimension(playerIn)
+			//TardisManager1.leaveDimension(playerIn)
 			return true
 		}
 		//return false
