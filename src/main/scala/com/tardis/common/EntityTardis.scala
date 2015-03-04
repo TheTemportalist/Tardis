@@ -1,5 +1,7 @@
 package com.tardis.common
 
+import java.util.UUID
+
 import com.tardis.common.dimensions.TardisManager
 import com.temportalist.origin.library.common.lib.vec.V3O
 import com.temportalist.origin.library.common.utility.WorldHelper
@@ -9,14 +11,14 @@ import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util._
 import net.minecraft.world.World
 import net.minecraftforge.common.ForgeChunkManager
-import net.minecraftforge.common.ForgeChunkManager.{Ticket, Type}
+import net.minecraftforge.common.ForgeChunkManager.Ticket
 
 /**
  *
  *
  * @author TheTemportalist
  */
-class EntityTardis(w: World) extends Entity(w) with IChunkLoader {
+class EntityTardis(w: World) extends Entity(w) {
 
 	this.setSize(1F, 2.5F)
 
@@ -134,25 +136,38 @@ class EntityTardis(w: World) extends Entity(w) with IChunkLoader {
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+	private var chunkTicket: Ticket = null
+
 	override def onEntityUpdate(): Unit = {
 		super.onEntityUpdate()
-		//println(new V3O(this))
-		//this.checkTicket(Tardis) todo fix for chunk loading
+		if (!this.worldObj.isRemote && this.chunkTicket == null) {
+			this.chunkTicket = ForgeChunkManager.requestTicket(
+				Tardis, this.getEntityWorld, ForgeChunkManager.Type.ENTITY)
+			if (this.chunkTicket != null) {
+				this.chunkTicket.bindEntity(this)
+				this.chunkTicket.getModData.setString("id", "Tardis")
+				val chunkPos: V3O = this.getChunkPos()
+				chunkPos.writeTo(this.chunkTicket.getModData, "chunkPos")
+				// auto write entities by dimid and uuid
+				this.chunkTicket.getModData
+						.setInteger("tardisDim", this.getEntityWorld.provider.getDimensionId)
+				val uuid: UUID = this.getUniqueID
+				this.chunkTicket.getModData.setLong("tardisIDmax", uuid.getMostSignificantBits)
+				this.chunkTicket.getModData.setLong("tardisIDmin", uuid.getLeastSignificantBits)
+				ForgeChunkManager.forceChunk(this.chunkTicket, chunkPos.toChunkPair())
+			}
+		}
 	}
 
-	override def getUniqueLoaderID(): String = "Tardis"
-
-	override def getLoaderWorld(): World = this.getEntityWorld
-
-	override def getType(): Type = ForgeChunkManager.Type.ENTITY
-
-	override def getChunkPos(): V3O = {
-		val thisVec: V3O = new V3O(this)
-		new V3O(thisVec.x_i() >> 4, 0, thisVec.z_i() >> 4)
+	def getChunkPos(): V3O = {
+		val vec: V3O = new V3O(this)
+		new V3O(vec.x_i() >> 4, 0, vec.z_i() >> 4)
 	}
 
-	override def writeOtherData(ticket: Ticket): Unit = {
-		ticket.bindEntity(this)
+	override def setDead(): Unit = {
+		super.setDead()
+		if (!this.worldObj.isRemote)
+			ForgeChunkManager.releaseTicket(this.chunkTicket)
 	}
 
 }

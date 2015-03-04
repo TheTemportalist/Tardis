@@ -1,15 +1,14 @@
 package com.tardis.common
 
+import java.util.UUID
+
 import com.temportalist.origin.library.common.Origin
 import com.temportalist.origin.library.common.lib.LogHelper
 import com.temportalist.origin.library.common.nethandler.{IPacket, PacketHandler}
 import com.temportalist.origin.library.common.utility.WorldHelper
 import com.temportalist.origin.wrapper.common.extended.{ExtendedEntity, ExtendedEntityHandler}
-import net.minecraft.client.Minecraft
-import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.world.World
 import net.minecraftforge.common.DimensionManager
 import net.minecraftforge.fml.relauncher.{Side, SideOnly}
 
@@ -21,7 +20,7 @@ import net.minecraftforge.fml.relauncher.{Side, SideOnly}
 class PlayerTardis(p: EntityPlayer) extends ExtendedEntity(p) {
 
 	private var tardisDim: Int = 0
-	private var tardisID: Int = -1
+	private var tardisUUID: UUID = null
 	private var originalPOV: Int = -1
 
 	override def saveNBTData(tagCom: NBTTagCompound): Unit = {
@@ -34,35 +33,32 @@ class PlayerTardis(p: EntityPlayer) extends ExtendedEntity(p) {
 		//this.tardisID = tagCom.getInteger("tardisID")
 	}
 
-	def setTardis(tDim: Int, tID: Int): Unit = {
+	def setTardis(tDim: Int, tUUID: UUID): Unit = {
 		this.tardisDim = tDim
-		this.tardisID = tID
+		this.tardisUUID = tUUID
 		//this.syncEntity()
 	}
 
 	def setTardis(tardis: EntityTardis): Unit = {
-		if (tardis == null) this.setTardis(0, -1)
-		else this.setTardis(tardis.getEntityWorld.provider.getDimensionId, tardis.getEntityId)
+		if (tardis == null) this.setTardis(0, null)
+		else this.setTardis(tardis.getEntityWorld.provider.getDimensionId, tardis.getUniqueID)
 	}
 
-	def isControllingTardis(): Boolean = this.tardisID >= 0
+	def isControllingTardis(): Boolean = this.tardisUUID != null
 
 	def getTardis(): EntityTardis = {
 		if (this.isControllingTardis()) {
-			val world: World = DimensionManager.getWorld(this.tardisDim)
-			val entity: Entity = world.getEntityByID(this.tardisID)
-			if (entity != null) entity match {
-				case tardis: EntityTardis => return tardis
-				case _ =>
-			}
+			DimensionManager.getWorld(this.tardisDim).getEntityFromUuid(this.tardisUUID)
+					.asInstanceOf[EntityTardis]
 		}
-		null
+		else
+			null
 	}
 
 	@SideOnly(value = Side.CLIENT)
 	def openRender(): Unit = {
+		/*
 		if (this.isControllingTardis()) {
-			// todo WARNING: we need to make sure the tardis is chunk loaded
 			val tardis: EntityTardis = this.getTardis()
 			if (tardis != null) {
 
@@ -74,12 +70,15 @@ class PlayerTardis(p: EntityPlayer) extends ExtendedEntity(p) {
 
 			}
 		}
+		*/
 		this.syncEntity()
 	}
 
 	@SideOnly(value = Side.CLIENT)
 	def closeRender(): Unit = {
-		if (this.isControllingTardis() && Minecraft.getMinecraft.thePlayer.isInstanceOf[EntityPlayerTardis]) {
+		/*
+		if (this.isControllingTardis() &&
+				Minecraft.getMinecraft.thePlayer.isInstanceOf[EntityPlayerTardis]) {
 
 			EntityPlayerTardis.close()
 
@@ -87,6 +86,7 @@ class PlayerTardis(p: EntityPlayer) extends ExtendedEntity(p) {
 			this.originalPOV = -1
 
 		}
+		*/
 		this.syncEntity()
 	}
 
@@ -116,9 +116,11 @@ object PlayerTardis {
 	}
 
 	def open(tardis: EntityTardis, player: EntityPlayer): Unit = {
+		/*
 		this.send(player, new PacketTardisController("open",
 			tardis.getEntityWorld.provider.getDimensionId, tardis.getEntityId
 		))
+		*/
 	}
 
 	def close(player: EntityPlayer): Unit = {

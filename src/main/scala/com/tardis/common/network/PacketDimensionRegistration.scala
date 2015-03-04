@@ -1,4 +1,4 @@
-package com.tardis.common
+package com.tardis.common.network
 
 import java.util
 

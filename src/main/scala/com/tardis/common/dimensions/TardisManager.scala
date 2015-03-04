@@ -4,7 +4,8 @@ import java.io.File
 import java.util
 import java.util.List
 
-import com.tardis.common.{EntityTardis, PacketDimensionRegistration, Tardis}
+import com.tardis.common.network.PacketDimensionRegistration
+import com.tardis.common.{EntityTardis, Tardis}
 import com.temportalist.origin.library.common.lib.TeleporterCore
 import com.temportalist.origin.library.common.lib.vec.V3O
 import com.temportalist.origin.library.common.nethandler.PacketHandler
@@ -12,7 +13,7 @@ import com.temportalist.origin.library.common.utility.Scala
 import net.minecraft.entity.player.{EntityPlayer, EntityPlayerMP}
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.{EnumFacing, MathHelper}
-import net.minecraft.world.{WorldServer, WorldProvider}
+import net.minecraft.world.{World, WorldServer, WorldProvider}
 import net.minecraft.world.storage.MapStorage
 import net.minecraftforge.common.DimensionManager
 import net.minecraftforge.fml.common.FMLCommonHandler
@@ -68,6 +69,11 @@ object TardisManager {
 
 	def getDimName(dimID: Int): String = this.filePrefix + dimID
 
+	def getDimData(world: World): InyardData = this.getDimData(
+		world.provider.getDimensionId,
+		!world.isRemote
+	)
+
 	def getDimData(dimID: Int, isServer: Boolean): InyardData = {
 		if (DimensionManager.getProviderType(dimID) == this.providerID) {
 			val dimName: String = this.getDimName(dimID)
@@ -121,6 +127,7 @@ object TardisManager {
 	def registerTardis(tardis: EntityTardis): Unit = {
 		val data: InyardData = this.createDimension()
 		if (data != null) {
+			//println ("registered tardis @ " + tardis.worldObj.provider.getDimensionId + " | " + tardis.getUniqueID)
 			tardis.setInteriorDimension(data.getDim())
 			data.setTardis(tardis)
 			data.markDirty()
@@ -128,6 +135,15 @@ object TardisManager {
 		else {
 			println("Data was null and could not assign tardis details")
 		}
+	}
+
+	def getTardis(world: World): EntityTardis = this.getTardis(
+		world.provider.getDimensionId,
+		!world.isRemote
+	)
+
+	def getTardis(dimID: Int, isServer: Boolean): EntityTardis = {
+		this.getDimData(dimID, isServer).getTardis()
 	}
 
 	def movePlayerIntoTardis(player: EntityPlayer, tardis: EntityTardis): Unit = {
@@ -146,11 +162,7 @@ object TardisManager {
 	}
 
 	def movePlayerOutOfTardis(player: EntityPlayer): Unit = {
-		val data: InyardData = this.getDimData(
-			player.getEntityWorld.provider.getDimensionId,
-			player.getEntityWorld.isRemote
-		)
-		val tardis: EntityTardis = data.getTardis()
+		val tardis: EntityTardis = this.getTardis(player.getEntityWorld)
 		if (tardis == null) {
 			println("null tardis")
 			return

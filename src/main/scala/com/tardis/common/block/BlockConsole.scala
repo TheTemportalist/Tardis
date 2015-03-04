@@ -1,14 +1,12 @@
 package com.tardis.common.block
 
-import com.tardis.common.Tardis
-import com.tardis.common.item.ItemConsole
+import com.tardis.common.dimensions.TardisManager
 import com.tardis.common.tile.TEConsole
+import com.tardis.common.{EntityTardis, Tardis}
 import com.temportalist.origin.wrapper.common.block.BlockWrapperTE
 import net.minecraft.block.material.Material
 import net.minecraft.block.state.IBlockState
-import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.item.ItemStack
 import net.minecraft.util.{BlockPos, EnumFacing}
 import net.minecraft.world.World
 
@@ -19,32 +17,29 @@ import net.minecraft.world.World
  */
 class BlockConsole(name: String)
 		extends BlockWrapperTE(
-			Material.rock, Tardis.MODID, name,
-			classOf[ItemConsole], classOf[TEConsole]
+			Material.rock, Tardis.MODID, name, classOf[TEConsole]
 		) {
 
 	override def isOpaqueCube: Boolean = false
-
-	override def onBlockPlacedBy(worldIn: World, pos: BlockPos, state: IBlockState,
-			placer: EntityLivingBase, stack: ItemStack): Unit = {
-		//TardisManager.registerConsole(worldIn, true)
-	}
-
-	override def breakBlock(worldIn: World, pos: BlockPos, state: IBlockState): Unit = {
-		super.breakBlock(worldIn, pos, state)
-		//TardisManager.registerConsole(worldIn, false)
-	}
 
 	override def onBlockActivated(worldIn: World, pos: BlockPos, state: IBlockState,
 			playerIn: EntityPlayer, side: EnumFacing, hitX: Float, hitY: Float,
 			hitZ: Float): Boolean = {
 		side match {
 			case EnumFacing.UP =>
-				//TardisManager1.openInterface(playerIn)
-				return true
+				val tardis: EntityTardis = TardisManager.getTardis(worldIn)
+				if (tardis != null) {
+					tardis.setPositionAndUpdate(
+						tardis.posX + 1, tardis.posY, tardis.posZ
+					)
+				}
+				else {
+					println ("null tardis in console activation")
+				}
+				true
 			case _ =>
+				false
 		}
-		false
 	}
 
 }

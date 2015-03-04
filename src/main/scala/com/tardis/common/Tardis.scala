@@ -12,6 +12,7 @@ import com.temportalist.origin.wrapper.common.ModWrapper
 import com.temportalist.origin.wrapper.common.item.ItemWrapper
 import net.minecraft.entity.Entity
 import net.minecraft.tileentity.TileEntity
+import net.minecraftforge.common.ForgeChunkManager
 import net.minecraftforge.fml.common.event._
 import net.minecraftforge.fml.common.registry.{EntityRegistry, GameRegistry}
 import net.minecraftforge.fml.common.{Mod, SidedProxy}
@@ -74,13 +75,15 @@ object Tardis extends ModWrapper {
 		this.tDoor = new BlockTardisDoor("tardis_door")
 		Origin.addBlockToTab(this.tDoor)
 
+		/*
 		RegisterHelper.registerPacketHandler(this.MODID, classOf[PacketTardisController],
 			classOf[PacketTardisMover]
 		)
+		*/
 
 		TardisManager.registerProviderType()
 
-		ChunkLoaderHandler.preInit(this)
+		ForgeChunkManager.setForcedChunkLoadingCallback(this, TardisChunkCallback)
 
 	}
 

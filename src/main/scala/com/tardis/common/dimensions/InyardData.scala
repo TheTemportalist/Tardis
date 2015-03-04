@@ -37,6 +37,8 @@ class InyardData(name: String) extends WorldSavedData(name) {
 	}
 
 	def getTardis(): EntityTardis = {
+		//println("Dim@" + this.dimID + " contains tardis stats of Dim@" +
+		//		this.tardisDim + " & UUID@" + this.tardisEID)
 		DimensionManager.getWorld(this.tardisDim).getEntityFromUuid(this.tardisEID)
 				.asInstanceOf[EntityTardis]
 	}
