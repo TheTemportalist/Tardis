@@ -17,7 +17,7 @@ import net.minecraft.world.chunk.{Chunk, ChunkPrimer, IChunkProvider}
  *
  * @author TheTemportalist
  */
-class VoidGenerator(world: World) extends IChunkProvider {
+class VoidGeneratorProv(world: World) extends IChunkProvider {
 
 	override def chunkExists(x: Int, z: Int): Boolean = true
 

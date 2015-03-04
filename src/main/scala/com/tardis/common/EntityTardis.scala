@@ -1,6 +1,6 @@
 package com.tardis.common
 
-import com.tardis.common.dimensions.DimManager
+import com.tardis.common.dimensions.TardisManager
 import com.temportalist.origin.library.common.utility.WorldHelper
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
@@ -67,11 +67,13 @@ class EntityTardis(w: World) extends Entity(w) {
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	override def writeEntityToNBT(tagCom: NBTTagCompound): Unit = {
-
+		tagCom.setInteger("doorState", this.getDoorState())
+		tagCom.setInteger("interiorDim", this.getInteriorDimension())
 	}
 
 	override def readEntityFromNBT(tagCom: NBTTagCompound): Unit = {
-
+		this.setDoorState(tagCom.getInteger("doorState"))
+		this.setInteriorDimension(tagCom.getInteger("interiorDim"))
 	}
 
 	override def attackEntityFrom(source: DamageSource, amount: Float): Boolean = {
@@ -79,7 +81,6 @@ class EntityTardis(w: World) extends Entity(w) {
 			case player: EntityPlayer =>
 				if (player.capabilities.isCreativeMode) {
 					this.setDead()
-					DimManager.removeDim(this)
 					return true
 				}
 			case _ =>
@@ -98,8 +99,7 @@ class EntityTardis(w: World) extends Entity(w) {
 	override def onCollideWithPlayer(player: EntityPlayer): Unit = {
 		if (WorldHelper.isInFieldOfView(this, player) && this.isDoorOpen()) {
 			if (player.getPositionVector.distanceTo(this.getPositionVector) <= 1.3d) {
-				TardisManager.movePlayerThroughDoor(player, this, true)
-				//println(this.getInteriorDimension())
+				TardisManager.movePlayerIntoTardis(player, this)
 			}
 		}
 	}
@@ -116,16 +116,19 @@ class EntityTardis(w: World) extends Entity(w) {
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	def isDoorOpen(): Boolean = this.dataWatcher.getWatchableObjectInt(10) == 1
+	def getDoorState(): Int = this.dataWatcher.getWatchableObjectInt(10)
 
-	def openDoor(): Unit = this.dataWatcher.updateObject(10, 1)
+	def setDoorState(state: Int): Unit = this.dataWatcher.updateObject(10, state)
 
-	def closeDoor(): Unit = this.dataWatcher.updateObject(10, 0)
+	def isDoorOpen(): Boolean = this.getDoorState() == 1
+
+	def openDoor(): Unit = this.setDoorState(1)
+
+	def closeDoor(): Unit = this.setDoorState(0)
 
 	def getInteriorDimension(): Int = this.dataWatcher.getWatchableObjectInt(11)
 
-	def setInteriorDimension(dimid: Int): Unit =
-		this.dataWatcher.updateObject(11, dimid)
+	def setInteriorDimension(dimid: Int): Unit = this.dataWatcher.updateObject(11, dimid)
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

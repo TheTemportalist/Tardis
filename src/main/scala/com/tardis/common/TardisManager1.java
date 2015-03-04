@@ -1,9 +1,11 @@
 package com.tardis.common;
 
-import com.tardis.common.dimensions.InyardSavedData;
+import com.tardis.common.dimensions.InyardData;
 import com.temportalist.origin.library.common.lib.LogHelper;
 import com.temportalist.origin.library.common.lib.vec.V3O;
+import com.temportalist.origin.library.common.utility.Teleport;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.WorldSavedData;
@@ -20,7 +22,8 @@ import java.util.List;
  *
  * @author TheTemportalist XCompWiz
  */
-public class TardisManager {
+@Deprecated
+public class TardisManager1 {
 
 	public static final List<Integer> registeredDims = new ArrayList<Integer>();
 	private static final HashMap<Integer, EntityTardis> tardi = new HashMap<Integer, EntityTardis>();
@@ -44,14 +47,16 @@ public class TardisManager {
 	*/
 
 	public static void registerDimensions(boolean isRegistering) {
+		/*
 		for (Integer id : TardisManager.registeredDims) {
 			if (isRegistering) DimensionManager.registerDimension(id, TardisManager.providerID);
 			else DimensionManager.unregisterDimension(id);
 		}
+		*/
 	}
 
 	public static void openInterface(EntityPlayer player) {
-		PlayerTardis.open(TardisManager.getTardisForDimension(
+		PlayerTardis.open(TardisManager1.getTardisForDimension(
 				player.getEntityWorld().provider.getDimensionId()
 		), player);
 	}
@@ -60,23 +65,34 @@ public class TardisManager {
 		if (FMLCommonHandler.instance().getMinecraftServerInstance() == null)
 			throw new RuntimeException("Cannot create dimension client-side.");
 		int id = DimensionManager.getNextFreeDimId();
-		if (TardisManager.tardi.containsKey(id))
+		if (TardisManager1.tardi.containsKey(id))
 			LogHelper.info(Tardis.MODID(), "ERROR: id " + id + " already exists");
 		else {
-			TardisManager.registeredDims.add(id);
-			DimensionManager.registerDimension(id, TardisManager.providerID);
+			TardisManager1.registeredDims.add(id);
+			DimensionManager.registerDimension(id, TardisManager1.providerID);
 			tardis.setInteriorDimension(id);
-			TardisManager.tardi.put(id, tardis);
-			TardisManager.dimNames.put(id, "TARDISDim" + id);
-			System.out.println("Registered: " + TardisManager.dimNames.get(id));
-			TardisManager.doors.put(id, V3O.ZERO());
+			TardisManager1.tardi.put(id, tardis);
+			TardisManager1.dimNames.put(id, "TARDISDim" + id);
+			System.out.println("Registered: " + TardisManager1.dimNames.get(id));
+			TardisManager1.doors.put(id,
+					V3O.ZERO().$plus(V3O.UP()).$plus(new V3O(.5, 0, .5))
+			);
 
-			TardisManager.setData(id).markDirty();
+			WorldServer world = TardisManager1.getWorld(id);
+
+
+			TardisManager1.setData(id).markDirty();
 
 		}
 	}
 
 	//TODO finish this method based on starting point in dimension
+
+	public static void leaveDimension(EntityPlayer player) {
+		TardisManager1.movePlayerThroughDoor(player, TardisManager1.getTardisForDimension(
+				player.getEntityWorld().provider.getDimensionId()
+		), false);
+	}
 
 	/**
 	 * Moves player through the passed tardis' door (transfer player to tardis interior)
@@ -92,11 +108,11 @@ public class TardisManager {
 		if (into) {
 			dim = tardis.getInteriorDimension();
 
-			WorldSavedData data = TardisManager.load(dim);
-			System.out.println(TardisManager.doors.toString());
+			WorldSavedData data = TardisManager1.load(dim);
+			System.out.println(TardisManager1.doors.toString());
 
 			//WorldServer dimWorld = DimensionManager.getWorld(dim);
-			V3O doorPos = TardisManager.doors.get(dim); // todo this isnt saved and therefore cleared on load
+			V3O doorPos = TardisManager1.doors.get(dim); // todo this isnt saved and therefore cleared on load
 			//IBlockState doorState = dimWorld.getBlockState(doorPos.toBlockPos());
 			//EnumFacing facing = (EnumFacing)doorState.getValue(BlockDoor.FACING);
 			if (doorPos == null) return;
@@ -105,7 +121,7 @@ public class TardisManager {
 		}
 		else {
 			dim = tardis.getEntityWorld().provider.getDimensionId();
-			pos = new V3O(tardis);
+			pos = new V3O(tardis).$plus(V3O.NORTH()); // todo this is arbitrary, see below
 			// todo translate pos based on tardis rotation (where tardis doors are frontwards)
 		}
 		// todo change to encapsulated method in Teleport
@@ -118,32 +134,34 @@ public class TardisManager {
 		}
 		Teleport.toPoint(player, pos);
 		*/
-		//Teleport.toDimensionPoint(player, pos, dim);
+		if (player instanceof EntityPlayerMP && Teleport.toDimension(player, dim)) {
+			Teleport.toPoint(player, pos);
+		}
 
 	}
 
 	public static String getDimName(int dimid) {
-		return TardisManager.dimNames.get(dimid);
+		return TardisManager1.dimNames.get(dimid);
 	}
 
 	public static void setDimName(int dimid, String name) {
-		TardisManager.dimNames.put(dimid, name);
+		TardisManager1.dimNames.put(dimid, name);
 	}
 
 	public static EntityTardis getTardisForDimension(int dimid) {
-		return TardisManager.tardi.containsKey(dimid) ? TardisManager.tardi.get(dimid) : null;
+		return TardisManager1.tardi.containsKey(dimid) ? TardisManager1.tardi.get(dimid) : null;
 	}
 
 	public static void setTardis(int dimid, EntityTardis tardis) {
-		TardisManager.tardi.put(dimid, tardis);
+		TardisManager1.tardi.put(dimid, tardis);
 	}
 
 	public static V3O getDoorPos(int dimid) {
-		return TardisManager.doors.get(dimid);
+		return TardisManager1.doors.get(dimid);
 	}
 
 	public static void setDoorPos(int dimid, V3O pos) {
-		TardisManager.doors.put(dimid, pos);
+		TardisManager1.doors.put(dimid, pos);
 	}
 
 	public static WorldServer getWorld(int dimid) {
@@ -151,22 +169,22 @@ public class TardisManager {
 	}
 
 	public static WorldSavedData setData(int dimid) {
-		String key = TardisManager.getDimName(dimid);
-		InyardSavedData data = new InyardSavedData(key);
+		String key = TardisManager1.getDimName(dimid);
+		InyardData data = new InyardData(key);
 		data.setDim(dimid);
-		TardisManager.getWorld(dimid).getMapStorage().setData(key, data);
+		TardisManager1.getWorld(dimid).getMapStorage().setData(key, data);
 		return data;
 	}
 
 	public static WorldSavedData load(int dimid) {
-		String name = TardisManager.getDimName(dimid);
-		WorldServer world = TardisManager.getWorld(dimid);
+		String name = TardisManager1.getDimName(dimid);
+		WorldServer world = TardisManager1.getWorld(dimid);
 		WorldSavedData data = world.getMapStorage().loadData(
-				InyardSavedData.class, name
+				InyardData.class, name
 		);
 		if (data == null) {
 			System.out.println("Data was null");
-			data = new InyardSavedData(name);
+			data = new InyardData(name);
 			world.getMapStorage().setData(name, data);
 		}
 		return data;

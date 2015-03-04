@@ -5,7 +5,7 @@ import java.util.Random
 
 import com.tardis.common.item.ItemTDoor
 import com.tardis.common.tile.TEDoor
-import com.tardis.common.{EntityTardis, Tardis}
+import com.tardis.common.{TardisManager1, EntityTardis, Tardis}
 import com.temportalist.origin.library.common.utility.Generic
 import com.temportalist.origin.wrapper.common.block.BlockWrapperTE
 import net.minecraft.block.BlockDoor._
@@ -41,19 +41,26 @@ class BlockTardisDoor(n: String) extends BlockWrapperTE(
 	override def onBlockActivated(worldIn: World, pos: BlockPos, stateIn: IBlockState,
 			playerIn: EntityPlayer, side: EnumFacing, hitX: Float, hitY: Float,
 			hitZ: Float): Boolean = {
-		worldIn.setBlockState(pos, stateIn.cycleProperty(OPEN), 3)
-		val otherPos: BlockPos =
-			if (stateIn.getValue(HALF) == EnumDoorHalf.LOWER) pos.up()
-			else pos.down()
-		val otherState: IBlockState = worldIn.getBlockState(otherPos)
-		worldIn.setBlockState(otherPos, otherState.cycleProperty(OPEN), 3)
-		worldIn.markBlockRangeForRenderUpdate(otherPos, pos)
-		worldIn.playAuxSFXAtEntity(
-			playerIn,
-			if (stateIn.getValue(OPEN).asInstanceOf[Boolean].booleanValue) 1003 else 1006,
-			pos, 0
-		)
-		true
+		if (!playerIn.isSneaking) {
+			worldIn.setBlockState(pos, stateIn.cycleProperty(OPEN), 3)
+			val otherPos: BlockPos =
+				if (stateIn.getValue(HALF) == EnumDoorHalf.LOWER) pos.up()
+				else pos.down()
+			val otherState: IBlockState = worldIn.getBlockState(otherPos)
+			worldIn.setBlockState(otherPos, otherState.cycleProperty(OPEN), 3)
+			worldIn.markBlockRangeForRenderUpdate(otherPos, pos)
+			worldIn.playAuxSFXAtEntity(
+				playerIn,
+				if (stateIn.getValue(OPEN).asInstanceOf[Boolean].booleanValue) 1003 else 1006,
+				pos, 0
+			)
+			return true
+		}
+		else {
+			TardisManager1.leaveDimension(playerIn)
+			return true
+		}
+		//return false
 	}
 
 	override def onNeighborBlockChange(
@@ -209,11 +216,13 @@ class BlockTardisDoor(n: String) extends BlockWrapperTE(
 		}
 	}
 
+	/*
 	override def onEntityCollidedWithBlock(
 			worldIn: World, pos: BlockPos, entity: Entity): Unit = {
-		if (!entity.isSneaking) {
-			// todo tele
+		if (!entity.isSneaking && !worldIn.isRemote && entity.isInstanceOf[EntityPlayer]) {
+			TardisManager.leaveDimension(entity.asInstanceOf[EntityPlayer])
 		}
 	}
+	*/
 
 }
