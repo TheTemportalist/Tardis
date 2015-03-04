@@ -3,6 +3,7 @@ package com.tardis.common.block
 import java.util
 import java.util.Random
 
+import com.tardis.common.dimensions.TardisManager
 import com.tardis.common.item.ItemTDoor
 import com.tardis.common.tile.TEDoor
 import com.tardis.common.{EntityTardis, Tardis}
@@ -29,7 +30,7 @@ class BlockTardisDoor(n: String) extends BlockWrapperTE(
 
 	this.setDefaultState(
 		this.blockState.getBaseState
-				.withProperty(BlockDoor.FACING, EnumFacing.NORTH)
+				.withProperty(BlockDoor.FACING, EnumFacing.EAST)
 				.withProperty(BlockDoor.OPEN, false)
 				.withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.LOWER)
 	)
@@ -57,7 +58,7 @@ class BlockTardisDoor(n: String) extends BlockWrapperTE(
 			return true
 		}
 		else {
-			//TardisManager1.leaveDimension(playerIn)
+			TardisManager.movePlayerOutOfTardis(playerIn)
 			return true
 		}
 		//return false

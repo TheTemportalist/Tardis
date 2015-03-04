@@ -3,7 +3,6 @@ package com.tardis.common
 import com.temportalist.origin.library.common.Origin
 import com.temportalist.origin.library.common.lib.LogHelper
 import com.temportalist.origin.library.common.nethandler.{IPacket, PacketHandler}
-import com.temportalist.origin.library.common.network.PacketSyncExtendedProperties
 import com.temportalist.origin.library.common.utility.WorldHelper
 import com.temportalist.origin.wrapper.common.extended.{ExtendedEntity, ExtendedEntityHandler}
 import net.minecraft.client.Minecraft
@@ -26,19 +25,19 @@ class PlayerTardis(p: EntityPlayer) extends ExtendedEntity(p) {
 	private var originalPOV: Int = -1
 
 	override def saveNBTData(tagCom: NBTTagCompound): Unit = {
-		tagCom.setInteger("tardisDim", this.tardisDim)
-		tagCom.setInteger("tardisID", this.tardisID)
+		//tagCom.setInteger("tardisDim", this.tardisDim)
+		//tagCom.setInteger("tardisID", this.tardisID)
 	}
 
 	override def loadNBTData(tagCom: NBTTagCompound): Unit = {
-		this.tardisDim = tagCom.getInteger("tardisDim")
-		this.tardisID = tagCom.getInteger("tardisID")
+		//this.tardisDim = tagCom.getInteger("tardisDim")
+		//this.tardisID = tagCom.getInteger("tardisID")
 	}
 
 	def setTardis(tDim: Int, tID: Int): Unit = {
 		this.tardisDim = tDim
 		this.tardisID = tID
-		this.syncEntity()
+		//this.syncEntity()
 	}
 
 	def setTardis(tardis: EntityTardis): Unit = {
@@ -94,14 +93,14 @@ class PlayerTardis(p: EntityPlayer) extends ExtendedEntity(p) {
 	override def syncEntity(): Unit = {
 		val tagCom: NBTTagCompound = new NBTTagCompound()
 		this.saveNBTData(tagCom)
-		val syncMessage: PacketSyncExtendedProperties =
-			new PacketSyncExtendedProperties(this.getClass, tagCom)
+		//val syncMessage: PacketSyncExtendedProperties =
+		//	new PacketSyncExtendedProperties(this.getClass, tagCom)
 		if (this.player != null)
 			if (WorldHelper.isServer()) {
-				PacketHandler.sendToPlayer(Origin.MODID, syncMessage, this.player)
+				//PacketHandler.sendToPlayer(Origin.MODID, syncMessage, this.player)
 			}
 			else {
-				PacketHandler.sendToServer(Origin.MODID, syncMessage)
+				//PacketHandler.sendToServer(Origin.MODID, syncMessage)
 			}
 		else
 			LogHelper.info(Origin.MODNAME, "Error: Null player in extended entity")
@@ -123,7 +122,7 @@ object PlayerTardis {
 	}
 
 	def close(player: EntityPlayer): Unit = {
-		this.send(player, new PacketTardisController("close"))
+		//this.send(player, new PacketTardisController("close"))
 	}
 
 	private def send(player: EntityPlayer, packet: IPacket): Unit = {

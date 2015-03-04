@@ -5,12 +5,14 @@ import java.util
 import java.util.List
 
 import com.tardis.common.{EntityTardis, PacketDimensionRegistration, Tardis}
+import com.temportalist.origin.library.common.lib.TeleporterCore
 import com.temportalist.origin.library.common.lib.vec.V3O
 import com.temportalist.origin.library.common.nethandler.PacketHandler
-import com.temportalist.origin.library.common.utility.{Teleport, Scala}
-import net.minecraft.entity.player.EntityPlayer
+import com.temportalist.origin.library.common.utility.Scala
+import net.minecraft.entity.player.{EntityPlayer, EntityPlayerMP}
 import net.minecraft.server.MinecraftServer
-import net.minecraft.world.WorldProvider
+import net.minecraft.util.{EnumFacing, MathHelper}
+import net.minecraft.world.{WorldServer, WorldProvider}
 import net.minecraft.world.storage.MapStorage
 import net.minecraftforge.common.DimensionManager
 import net.minecraftforge.fml.common.FMLCommonHandler
@@ -79,7 +81,7 @@ object TardisManager {
 					storage.setData(dimName, data)
 
 					data.setDim(dimID)
-					data.setSpawn(V3O.ZERO + V3O.UP)
+					data.setDoorPos(V3O.ZERO + V3O.UP)
 
 					data.markDirty()
 				}
@@ -120,16 +122,69 @@ object TardisManager {
 		val data: InyardData = this.createDimension()
 		if (data != null) {
 			tardis.setInteriorDimension(data.getDim())
+			data.setTardis(tardis)
+			data.markDirty()
 		}
 		else {
-			println ("Data was null and could not assign tardis dim")
+			println("Data was null and could not assign tardis details")
 		}
 	}
 
 	def movePlayerIntoTardis(player: EntityPlayer, tardis: EntityTardis): Unit = {
 		val dimID: Int = tardis.getInteriorDimension()
 		val data: InyardData = this.getDimData(dimID, player.getEntityWorld.isRemote)
-		Teleport.toDimension(player, dimID)
+		if (data == null) {
+			println("null data")
+			return
+		}
+
+		val spawn: V3O = new V3O(
+			data.getSpawnPoint(Tardis.tDoor.getDefaultState)
+		) + V3O.CENTER.suppressedYAxis()
+		this.tele(player, dimID, spawn)
+
+	}
+
+	def movePlayerOutOfTardis(player: EntityPlayer): Unit = {
+		val data: InyardData = this.getDimData(
+			player.getEntityWorld.provider.getDimensionId,
+			player.getEntityWorld.isRemote
+		)
+		val tardis: EntityTardis = data.getTardis()
+		if (tardis == null) {
+			println("null tardis")
+			return
+		}
+
+		// todo use that helper function mentioned in ItemPlacer
+		val facing: Int = MathHelper.floor_double(((tardis.rotationYaw * 4F) / 360F) + 0.5D) & 3
+		val convertedFacing =
+			facing match {
+				case 0 => 3
+				case 1 => 4
+				case 2 => 2
+				case 3 => 5
+				case _ => 2
+			}
+		val facingEnum: EnumFacing = EnumFacing.values()(convertedFacing)
+
+		if (!player.worldObj.isRemote) {
+			this.tele(player,
+				tardis.getEntityWorld.provider.getDimensionId, new V3O(tardis) + facingEnum)
+		}
+
+	}
+
+	def tele(player: EntityPlayer, dimID: Int, pos: V3O): Unit = {
+		player match {
+			case mp: EntityPlayerMP => // todo Teleport
+				mp.playerNetServerHandler.setPlayerLocation(
+					pos.x, pos.y, pos.z, mp.rotationYaw, mp.rotationPitch)
+				MinecraftServer.getServer.getConfigurationManager.transferPlayerToDimension(
+					mp, dimID, new TeleporterCore(mp.getEntityWorld.asInstanceOf[WorldServer])
+				)
+			case _ =>
+		}
 	}
 
 }

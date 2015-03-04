@@ -69,6 +69,7 @@ class ItemPlacer(id: String, n: String, private var entClass: Class[_ <: Entity]
 
 		val posVec: V3O = new V3O(pos) + new V3O(side) * 0.5 + V3O.CENTER
 
+		// todo move this to a helper function for all ents
 		val facing: Int = MathHelper.floor_double(((playerIn.rotationYaw * 4F) / 360F) + 0.5D) & 3
 		var rotZ: Float = facing * 90
 		if (playerIn.isSneaking) rotZ += 180

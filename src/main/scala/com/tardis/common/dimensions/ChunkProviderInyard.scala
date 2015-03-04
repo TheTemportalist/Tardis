@@ -2,6 +2,8 @@ package com.tardis.common.dimensions
 
 import java.util
 
+import com.tardis.common.Tardis
+import net.minecraft.block.{BlockStone, BlockDoor}
 import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.EnumCreatureType
 import net.minecraft.init.Blocks
@@ -28,12 +30,23 @@ class ChunkProviderInyard(val world: World, data: InyardData) extends IChunkProv
 	override def chunkExists(x: Int, z: Int): Boolean = true
 
 	override def populate(provider: IChunkProvider, chunkX: Int, chunkZ: Int): Unit = {
-		val spawn: BlockPos = new BlockPos(0, 1, 0)
-		if (spawn.getX >> 4 == chunkX && spawn.getY >> 4 == chunkZ) {
-			val state: IBlockState = Blocks.stone.getDefaultState
-			for (xOff <- -2 to 2) for (zOff <- -2 to 2) {
-				this.world.setBlockState(spawn.add(xOff, -1, zOff), state, 3)
+		val doorPos: BlockPos = this.data.getDoorPos().toBlockPos()
+		if (doorPos.getX >> 4 == chunkX && doorPos.getY >> 4 == chunkZ) {
+			val stoneState: IBlockState = Blocks.stone.getDefaultState.withProperty(
+				BlockStone.VARIANT, BlockStone.EnumType.ANDESITE_SMOOTH
+			)
+			val radius: Int = 1
+			for (xOff <- -radius to radius) for (zOff <- -radius to radius) {
+				this.world.setBlockState(doorPos.add(xOff, -1, zOff), stoneState, 3)
 			}
+
+			val doorState_default: IBlockState = Tardis.tDoor.getDefaultState
+			val doorState_top: IBlockState = doorState_default.withProperty(
+				BlockDoor.HALF, BlockDoor.EnumDoorHalf.UPPER
+			)
+			this.world.setBlockState(doorPos, doorState_default, 2)
+			this.world.setBlockState(doorPos.up(), doorState_top, 3)
+
 		}
 	}
 

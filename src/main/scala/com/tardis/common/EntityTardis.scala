@@ -1,19 +1,22 @@
 package com.tardis.common
 
 import com.tardis.common.dimensions.TardisManager
+import com.temportalist.origin.library.common.lib.vec.V3O
 import com.temportalist.origin.library.common.utility.WorldHelper
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util._
 import net.minecraft.world.World
+import net.minecraftforge.common.ForgeChunkManager
+import net.minecraftforge.common.ForgeChunkManager.{Ticket, Type}
 
 /**
  *
  *
  * @author TheTemportalist
  */
-class EntityTardis(w: World) extends Entity(w) {
+class EntityTardis(w: World) extends Entity(w) with IChunkLoader {
 
 	this.setSize(1F, 2.5F)
 
@@ -57,7 +60,6 @@ class EntityTardis(w: World) extends Entity(w) {
 
 		override def isSpectator: Boolean = true
 	*/
-	override def onUpdate(): Unit = {}
 
 	override def travelToDimension(dimensionId: Int): Unit = {
 		//		this.mcServer.getConfigurationManager().transferPlayerToDimension(this, dimensionId)
@@ -106,10 +108,10 @@ class EntityTardis(w: World) extends Entity(w) {
 
 	override def interactFirst(playerIn: EntityPlayer): Boolean = {
 		if (playerIn.isSneaking) {
-			PlayerTardis.open(this, playerIn)
+			//PlayerTardis.open(this, playerIn)
 			return true
 		}
-		if (WorldHelper.isInFieldOfView(this, playerIn))
+		if (WorldHelper.isInFieldOfView(this, playerIn) && this.getInteriorDimension() != 0)
 			if (this.isDoorOpen()) this.closeDoor() else this.openDoor()
 		true
 	}
@@ -131,5 +133,26 @@ class EntityTardis(w: World) extends Entity(w) {
 	def setInteriorDimension(dimid: Int): Unit = this.dataWatcher.updateObject(11, dimid)
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	override def onEntityUpdate(): Unit = {
+		super.onEntityUpdate()
+		//println(new V3O(this))
+		//this.checkTicket(Tardis) todo fix for chunk loading
+	}
+
+	override def getUniqueLoaderID(): String = "Tardis"
+
+	override def getLoaderWorld(): World = this.getEntityWorld
+
+	override def getType(): Type = ForgeChunkManager.Type.ENTITY
+
+	override def getChunkPos(): V3O = {
+		val thisVec: V3O = new V3O(this)
+		new V3O(thisVec.x_i() >> 4, 0, thisVec.z_i() >> 4)
+	}
+
+	override def writeOtherData(ticket: Ticket): Unit = {
+		ticket.bindEntity(this)
+	}
 
 }

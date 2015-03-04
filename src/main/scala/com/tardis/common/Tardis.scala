@@ -55,11 +55,12 @@ object Tardis extends ModWrapper {
 		// Item Tardis
 		this.tardis = new ItemPlacer(this.MODID, "tardis", classOf[EntityTardis]) {
 			override def preSpawn(entity: Entity): Unit = {
-				new Thread(new Runnable {
-					override def run(): Unit = {
+				// todo this causes lag when spawning a tardis
+				//new Thread(new Runnable {
+				//	override def run(): Unit = {
 						TardisManager.registerTardis(entity.asInstanceOf[EntityTardis])
-					}
-				}).start()
+				//	}
+				//}).start()
 
 			}
 		}
@@ -78,6 +79,8 @@ object Tardis extends ModWrapper {
 		)
 
 		TardisManager.registerProviderType()
+
+		ChunkLoaderHandler.preInit(this)
 
 	}
 

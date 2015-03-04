@@ -32,7 +32,7 @@ class WorldProviderInyard() extends WorldProvider {
 		new ChunkProviderInyard(this.worldObj, this.data)
 
 	override def getSpawnCoordinate: BlockPos = {
-		this.data.getSpawn().toBlockPos()
+		this.data.getSpawnPoint(this.worldObj.getBlockState(data.getDoorPos().toBlockPos()))
 	}
 
 }
