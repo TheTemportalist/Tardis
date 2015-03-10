@@ -63,11 +63,10 @@ class PlayerTardis(p: EntityPlayer) extends ExtendedEntity(p) {
 		if (!this.hasTardisToControl())
 			this.setTardis(tardis)
 
-		Minecraft.getMinecraft.setRenderViewEntity(tardis)
-		this.originalPOV = Minecraft.getMinecraft.gameSettings.thirdPersonView
-		Minecraft.getMinecraft.gameSettings.thirdPersonView = 1
+		// todo render frame buffer over everything
 
 		Minecraft.getMinecraft.thePlayer = new EntityPTSP(Minecraft.getMinecraft.thePlayer, tardis)
+		Minecraft.getMinecraft.setRenderViewEntity(Minecraft.getMinecraft.thePlayer)
 
 	}
 

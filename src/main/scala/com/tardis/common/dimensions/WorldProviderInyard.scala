@@ -26,6 +26,9 @@ class WorldProviderInyard() extends WorldProvider {
 	override def registerWorldChunkManager(): Unit = {
 		super.registerWorldChunkManager()
 		this.data = TardisManager.getDimData(this.dimID, this.worldObj.isRemote)
+		// todo spawn
+		// todo correct world size
+		this.worldObj.getWorldBorder.setTransition(16)
 	}
 
 	override def createChunkGenerator(): IChunkProvider =
@@ -34,5 +37,7 @@ class WorldProviderInyard() extends WorldProvider {
 	override def getSpawnCoordinate: BlockPos = {
 		this.data.getSpawnPoint(this.worldObj.getBlockState(data.getDoorPos().toBlockPos()))
 	}
+
+
 
 }

@@ -4,17 +4,15 @@ import java.io.File
 import java.util
 import java.util.List
 
-import com.tardis.common.network.PacketDimensionRegistration
 import com.tardis.common.{EntityTardis, Tardis}
 import com.temportalist.origin.library.common.lib.TeleporterCore
 import com.temportalist.origin.library.common.lib.vec.V3O
-import com.temportalist.origin.library.common.nethandler.PacketHandler
 import com.temportalist.origin.library.common.utility.Scala
 import net.minecraft.entity.player.{EntityPlayer, EntityPlayerMP}
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.{EnumFacing, MathHelper}
-import net.minecraft.world.{World, WorldServer, WorldProvider}
 import net.minecraft.world.storage.MapStorage
+import net.minecraft.world.{World, WorldProvider, WorldServer}
 import net.minecraftforge.common.DimensionManager
 import net.minecraftforge.fml.common.FMLCommonHandler
 
@@ -32,7 +30,7 @@ object TardisManager {
 	private final val providerClass: Class[_ <: WorldProvider] = classOf[WorldProviderInyard]
 
 	def registerProviderType(): Unit = {
-		DimensionManager.registerProviderType(this.providerID, this.providerClass, false)
+		DimensionManager.registerProviderType(this.providerID, this.providerClass, true)
 	}
 
 	def getDimensionList(dir: File): List[Int] = {
@@ -116,11 +114,12 @@ object TardisManager {
 
 	def createDimension(): InyardData = {
 		val dimID: Int = DimensionManager.getNextFreeDimId
-		val server: MinecraftServer = FMLCommonHandler.instance().getMinecraftServerInstance
-		if (server == null) throw new RuntimeException("Cannot create dimensions client-side")
+		//val server: MinecraftServer = FMLCommonHandler.instance().getMinecraftServerInstance
+		if (!FMLCommonHandler.instance().getEffectiveSide.isServer)// server == null)
+			throw new RuntimeException("Cannot create dimensions client-side")
 		this.registeredDims.add(dimID)
 		DimensionManager.registerDimension(dimID, this.providerID)
-		PacketHandler.sendToClients(Tardis.MODID, new PacketDimensionRegistration(dimID))
+		//PacketHandler.sendToClients(Tardis.MODID, new PacketDimensionRegistration(dimID))
 		this.getDimData(dimID, isServer = false)
 	}
 
