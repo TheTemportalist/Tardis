@@ -4,17 +4,17 @@ import java.io.File
 import java.util
 import java.util.List
 
-import com.tardis.common.{EntityTardis, Tardis}
-import com.temportalist.origin.library.common.lib.TeleporterCore
-import com.temportalist.origin.library.common.lib.vec.V3O
-import com.temportalist.origin.library.common.utility.Scala
-import net.minecraft.entity.player.{EntityPlayer, EntityPlayerMP}
+import com.tardis.common.EntityTardis
+import com.temportalist.origin.api.common.lib.vec.V3O
+import com.temportalist.origin.api.common.utility.{WorldHelper, Teleport, Scala}
+import com.temportalist.origin.library.common.utility.WorldHelper
+import net.minecraft.entity.player.{EntityPlayerMP, EntityPlayer}
 import net.minecraft.server.MinecraftServer
-import net.minecraft.util.{EnumFacing, MathHelper}
+import net.minecraft.util.MathHelper
 import net.minecraft.world.storage.MapStorage
-import net.minecraft.world.{World, WorldProvider, WorldServer}
+import net.minecraft.world.{World, WorldProvider}
 import net.minecraftforge.common.DimensionManager
-import net.minecraftforge.fml.common.FMLCommonHandler
+import net.minecraftforge.common.util.ForgeDirection
 
 /**
  *
@@ -54,7 +54,10 @@ object TardisManager {
 	def registerDimsFromDir(dir: File): Unit = {
 		this.registeredDims = this.getDimensionList(dir)
 		Scala.foreach(this.registeredDims, (index: Int, dimid: Int) => {
-			DimensionManager.registerDimension(dimid, this.providerID)
+			if (!DimensionManager.isDimensionRegistered(dimid)) {
+				DimensionManager.registerDimension(dimid, this.providerID)
+				println("TardisManager: registered dim " + dimid)
+			}
 		})
 	}
 
@@ -68,7 +71,7 @@ object TardisManager {
 	def getDimName(dimID: Int): String = this.filePrefix + dimID
 
 	def getDimData(world: World): InyardData = this.getDimData(
-		world.provider.getDimensionId,
+		world.provider.dimensionId,
 		!world.isRemote
 	)
 
@@ -109,13 +112,12 @@ object TardisManager {
 			null
 		}
 		*/
-		DimensionManager.getWorld(0).getMapStorage
+		DimensionManager.getWorld(0).perWorldStorage
 	}
 
 	def createDimension(): InyardData = {
 		val dimID: Int = DimensionManager.getNextFreeDimId
-		//val server: MinecraftServer = FMLCommonHandler.instance().getMinecraftServerInstance
-		if (!FMLCommonHandler.instance().getEffectiveSide.isServer)// server == null)
+		if (WorldHelper.isClient())
 			throw new RuntimeException("Cannot create dimensions client-side")
 		this.registeredDims.add(dimID)
 		DimensionManager.registerDimension(dimID, this.providerID)
@@ -137,7 +139,7 @@ object TardisManager {
 	}
 
 	def getTardis(world: World): EntityTardis = this.getTardis(
-		world.provider.getDimensionId,
+		world.provider.dimensionId,
 		!world.isRemote
 	)
 
@@ -153,10 +155,15 @@ object TardisManager {
 			return
 		}
 
-		val spawn: V3O = new V3O(
-			data.getSpawnPoint(Tardis.tDoor.getDefaultState)
-		) + V3O.CENTER.suppressedYAxis()
-		this.tele(player, dimID, spawn)
+		val spawn: V3O = data.getSpawnPoint(0) + V3O.CENTER.suppressedYAxis()
+		//Teleport.toDimensionPoint(player, spawn, dimID)
+
+		if (WorldHelper.isServer() && !player.isDead) {
+			println("teleport")
+			MinecraftServer.getServer.getConfigurationManager.transferPlayerToDimension(
+			player.asInstanceOf[EntityPlayerMP], dimID, new TeleporterCo
+			)
+		}
 
 	}
 
@@ -177,25 +184,10 @@ object TardisManager {
 				case 3 => 5
 				case _ => 2
 			}
-		val facingEnum: EnumFacing = EnumFacing.values()(convertedFacing)
-
-		if (!player.worldObj.isRemote) {
-			this.tele(player,
-				tardis.getEntityWorld.provider.getDimensionId, new V3O(tardis) + facingEnum)
-		}
-
-	}
-
-	def tele(player: EntityPlayer, dimID: Int, pos: V3O): Unit = {
-		player match {
-			case mp: EntityPlayerMP => // todo Teleport
-				mp.playerNetServerHandler.setPlayerLocation(
-					pos.x, pos.y, pos.z, mp.rotationYaw, mp.rotationPitch)
-				MinecraftServer.getServer.getConfigurationManager.transferPlayerToDimension(
-					mp, dimID, new TeleporterCore(mp.getEntityWorld.asInstanceOf[WorldServer])
-				)
-			case _ =>
-		}
+		val direction: V3O = new V3O(ForgeDirection.getOrientation(convertedFacing)) * 1.5
+		val point: V3O = new V3O(tardis) + direction
+		Teleport.toDimension(player, tardis.worldObj.provider.dimensionId)
+		Teleport.toPoint(player, point)
 	}
 
 }

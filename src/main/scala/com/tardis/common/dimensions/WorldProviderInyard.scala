@@ -1,6 +1,6 @@
 package com.tardis.common.dimensions
 
-import net.minecraft.util.BlockPos
+import net.minecraft.util.ChunkCoordinates
 import net.minecraft.world.WorldProvider
 import net.minecraft.world.chunk.IChunkProvider
 
@@ -16,8 +16,6 @@ class WorldProviderInyard() extends WorldProvider {
 
 	override def getDimensionName: String = TardisManager.getDimName(this.dimID)
 
-	override def getInternalNameSuffix: String = ""
-
 	override def setDimension(dim: Int): Unit = {
 		super.setDimension(dim)
 		this.dimID = dim
@@ -28,16 +26,13 @@ class WorldProviderInyard() extends WorldProvider {
 		this.data = TardisManager.getDimData(this.dimID, this.worldObj.isRemote)
 		// todo spawn
 		// todo correct world size
-		this.worldObj.getWorldBorder.setTransition(16)
+		//this.worldObj.getWorldBorder.setTransition(16)
 	}
 
 	override def createChunkGenerator(): IChunkProvider =
 		new ChunkProviderInyard(this.worldObj, this.data)
 
-	override def getSpawnCoordinate: BlockPos = {
-		this.data.getSpawnPoint(this.worldObj.getBlockState(data.getDoorPos().toBlockPos()))
-	}
-
-
+	override def getSpawnPoint: ChunkCoordinates =
+		this.data.getSpawnPoint(this.data.getDoorPos().getBlockMeta(this.worldObj)).toChunkCoords()
 
 }

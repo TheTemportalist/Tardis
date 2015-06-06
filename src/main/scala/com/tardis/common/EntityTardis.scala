@@ -2,15 +2,16 @@ package com.tardis.common
 
 import java.util.UUID
 
-import com.tardis.common.dimensions.TardisManager
-import com.temportalist.origin.library.common.lib.vec.V3O
-import com.temportalist.origin.library.common.utility.WorldHelper
+import com.tardis.common.dimensions.{InyardData, TardisManager}
+import com.tardis.common.init.TardisBlocks
+import com.temportalist.origin.api.common.lib.vec.V3O
+import com.temportalist.origin.api.common.utility.WorldHelper
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util._
-import net.minecraft.world.World
-import net.minecraftforge.common.ForgeChunkManager
+import net.minecraft.world.{WorldServer, World}
+import net.minecraftforge.common.{DimensionManager, ForgeChunkManager}
 import net.minecraftforge.common.ForgeChunkManager.Ticket
 
 /**
@@ -35,9 +36,7 @@ class EntityTardis(w: World) extends Entity(w) {
 
 	}
 
-	override def canUseCommand(permissionLevel: Int, command: String): Boolean = false
-
-	override def isEntityInvulnerable(p_180431_1_ : DamageSource): Boolean = true
+	override def isEntityInvulnerable: Boolean = true
 
 	/*
 		override def applyEntityAttributes(): Unit = {
@@ -78,6 +77,12 @@ class EntityTardis(w: World) extends Entity(w) {
 	override def readEntityFromNBT(tagCom: NBTTagCompound): Unit = {
 		this.setDoorState(tagCom.getInteger("doorState"))
 		this.setInteriorDimension(tagCom.getInteger("interiorDim"))
+		if (!DimensionManager.isDimensionRegistered(this.getInteriorDimension()))
+			DimensionManager.registerDimension(
+				this.getInteriorDimension(), TardisManager.providerID
+			)
+		TardisManager.getDimData(this.getInteriorDimension(), !this.worldObj.isRemote)
+				.setTardis(this)
 	}
 
 	override def attackEntityFrom(source: DamageSource, amount: Float): Boolean = {
@@ -98,24 +103,34 @@ class EntityTardis(w: World) extends Entity(w) {
 
 	override def getCollisionBox(entityIn: Entity): AxisAlignedBB = null
 
-	override def getBoundingBox: AxisAlignedBB = this.getEntityBoundingBox
+	override def getBoundingBox: AxisAlignedBB = this.boundingBox
 
 	override def onCollideWithPlayer(player: EntityPlayer): Unit = {
-		if (WorldHelper.isInFieldOfView(this, player) && this.isDoorOpen()) {
-			if (player.getPositionVector.distanceTo(this.getPositionVector) <= 1.3d) {
+		if (this.isDoorOpen() && WorldHelper.isInFieldOfView(this, player)) {
+			if (new V3O(player).distance(new V3O(this)) <= 1.3d) {
 				TardisManager.movePlayerIntoTardis(player, this)
 			}
 		}
 	}
 
 	override def interactFirst(playerIn: EntityPlayer): Boolean = {
-		if (playerIn.isSneaking) {
-			//PlayerTardis.open(this, playerIn)
-			return true
-		}
-		if (WorldHelper.isInFieldOfView(this, playerIn) && this.getInteriorDimension() != 0)
+		if (WorldHelper.isInFieldOfView(this, playerIn) && this.getInteriorDimension() != 0) {
 			if (this.isDoorOpen()) this.closeDoor() else this.openDoor()
+			val dimData: InyardData = TardisManager.getDimData(
+				this.getInteriorDimension(), WorldHelper.isServer(this))
+			val world: WorldServer = DimensionManager.getWorld(this.getInteriorDimension())
+			if (world != null)
+				TardisBlocks.tDoor.cycleOpen_Tall(world, dimData.getDoorPos())
+		}
 		true
+	}
+
+	override def getLookVec: Vec3 = {
+		val f1 = MathHelper.cos(-this.rotationYaw * 0.017453292F - Math.PI.toFloat)
+		val f2 = MathHelper.sin(-this.rotationYaw * 0.017453292F - Math.PI.toFloat)
+		val f3 = -MathHelper.cos(-this.rotationPitch * 0.017453292F)
+		val f4 = MathHelper.sin(-this.rotationPitch * 0.017453292F)
+		Vec3.createVectorHelper((f2 * f3).toDouble, f4.toDouble, (f1 * f3).toDouble)
 	}
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -123,6 +138,9 @@ class EntityTardis(w: World) extends Entity(w) {
 	def getDoorState(): Int = this.dataWatcher.getWatchableObjectInt(10)
 
 	def setDoorState(state: Int): Unit = this.dataWatcher.updateObject(10, state)
+
+	def setDoorOpen(isOpen: Boolean): Unit =
+		if (isOpen) this.setDoorState(1) else this.setDoorState(0)
 
 	def isDoorOpen(): Boolean = this.getDoorState() == 1
 
@@ -142,18 +160,20 @@ class EntityTardis(w: World) extends Entity(w) {
 		super.onEntityUpdate()
 		if (!this.worldObj.isRemote && this.chunkTicket == null) {
 			this.chunkTicket = ForgeChunkManager.requestTicket(
-				Tardis, this.getEntityWorld, ForgeChunkManager.Type.ENTITY)
+				Tardis, this.worldObj, ForgeChunkManager.Type.ENTITY)
 			if (this.chunkTicket != null) {
 				this.chunkTicket.bindEntity(this)
 				this.chunkTicket.getModData.setString("id", "Tardis")
 				val chunkPos: V3O = this.getChunkPos()
 				chunkPos.writeTo(this.chunkTicket.getModData, "chunkPos")
 				// auto write entities by dimid and uuid
-				this.chunkTicket.getModData
-						.setInteger("tardisDim", this.getEntityWorld.provider.getDimensionId)
+				this.chunkTicket.getModData.setInteger(
+					"tardisDim", this.worldObj.provider.dimensionId
+				)
 				val uuid: UUID = this.getUniqueID
 				this.chunkTicket.getModData.setLong("tardisIDmax", uuid.getMostSignificantBits)
 				this.chunkTicket.getModData.setLong("tardisIDmin", uuid.getLeastSignificantBits)
+				this.chunkTicket.getModData.setInteger("tardisID", this.getEntityId)
 				ForgeChunkManager.forceChunk(this.chunkTicket, chunkPos.toChunkPair())
 			}
 		}

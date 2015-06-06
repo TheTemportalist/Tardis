@@ -1,11 +1,12 @@
 package com.tardis.common.item
 
-import net.minecraft.block.state.IBlockState
+import com.tardis.common.init.TardisBlocks
+import com.temportalist.origin.api.common.lib.vec.V3O
+import net.minecraft.block.Block
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.item.{ItemStack, ItemBlock}
-import net.minecraft.block.{BlockDoor, Block}
-import net.minecraft.util.{BlockPos, EnumFacing}
+import net.minecraft.item.{ItemBlock, ItemStack}
 import net.minecraft.world.World
+import net.minecraftforge.common.util.ForgeDirection
 
 /**
  *
@@ -13,46 +14,31 @@ import net.minecraft.world.World
  * @author TheTemportalist
  */
 class ItemTDoor(b: Block) extends ItemBlock(b) {
-	override def onItemUse(stack: ItemStack, playerIn: EntityPlayer, worldIn: World,
-			posIn: BlockPos,
-			sideIn: EnumFacing, hitX: Float, hitY: Float, hitZ: Float): Boolean = {
-		if (sideIn == EnumFacing.UP) {
-			var pos: BlockPos = posIn
-			val state: IBlockState = worldIn.getBlockState(pos)
-			val block: Block = state.getBlock
 
-			if (!block.isReplaceable(worldIn, pos)) {
-				pos = pos.offset(sideIn)
-			}
-
-			if (playerIn.canPlayerEdit(pos, sideIn, stack) &&
-					this.block.canPlaceBlockAt(worldIn, pos)) {
-				this.place(worldIn, pos, EnumFacing.fromAngle(playerIn.rotationYaw.toDouble),
-					this.block)
-				stack.stackSize -= 1
+	override def onItemUse(stack: ItemStack, player: EntityPlayer, world: World,
+			x: Int, y: Int, z: Int, side: Int,
+			subX: Float, subY: Float, subZ: Float): Boolean = {
+		if (side == 1) {
+			val pos: V3O = new V3O(x, y, z)
+			val block: Block = pos.getBlock(world)
+			if (!block.isReplaceable(world, pos.x_i(), pos.y_i(), pos.z_i()))
+				pos += ForgeDirection.getOrientation(side)
+			if (player.canPlayerEdit(pos.x_i(), pos.y_i(), pos.z_i(), side, stack) &&
+				this.field_150939_a.canPlaceBlockAt(world, pos.x_i(), pos.y_i(), pos.z_i())) {
+				this.place(world, pos, ForgeDirection.NORTH, this.field_150939_a)
+				if (!player.capabilities.isCreativeMode)
+					stack.stackSize -= 1
 				return true
 			}
 
 		}
-
 		false
 	}
 
-	def place(world: World, pos: BlockPos, facing: EnumFacing, block: Block): Unit = {
-		val uPos: BlockPos = pos.up
-		val state: IBlockState = block.getDefaultState.withProperty(BlockDoor.FACING, facing)
-		world.setBlockState(
-			pos,
-			state.withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.LOWER),
-			2
-		)
-		world.setBlockState(
-			uPos,
-			state.withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.UPPER),
-			3
-		)
-		//world.notifyNeighborsOfStateChange(pos, block)
-		//world.notifyNeighborsOfStateChange(uPos, block)
+	def place(world: World, pos: V3O, facing: ForgeDirection, block: Block): Unit = {
+		val meta: Int = TardisBlocks.tDoor.setFacing(0, facing)
+		pos.setBlock(world, TardisBlocks.tDoor, TardisBlocks.tDoor.setHalf(meta, false))
+		pos.up().setBlock(world, TardisBlocks.tDoor, TardisBlocks.tDoor.setHalf(meta, true))
 	}
 
 }

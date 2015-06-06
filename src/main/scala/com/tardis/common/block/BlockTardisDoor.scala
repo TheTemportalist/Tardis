@@ -1,115 +1,123 @@
 package com.tardis.common.block
 
 import java.util
-import java.util.Random
 
 import com.tardis.common.dimensions.TardisManager
 import com.tardis.common.item.ItemTDoor
 import com.tardis.common.tile.TEDoor
 import com.tardis.common.{EntityTardis, Tardis}
-import com.temportalist.origin.library.common.utility.Generic
-import com.temportalist.origin.wrapper.common.block.BlockWrapperTE
-import net.minecraft.block.BlockDoor._
-import net.minecraft.block.state.{BlockState, IBlockState}
-import net.minecraft.block.{Block, BlockDoor}
+import com.temportalist.origin.api.common.block.BlockTile
+import com.temportalist.origin.api.common.lib.vec.V3O
+import com.temportalist.origin.api.common.utility.Generic
+import net.minecraft.block.Block
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.item.Item
+import net.minecraft.item.ItemStack
 import net.minecraft.util._
-import net.minecraft.world.{IBlockAccess, World}
-import net.minecraftforge.fml.relauncher.{Side, SideOnly}
+import net.minecraft.world.World
+import net.minecraftforge.common.util.ForgeDirection
 
 /**
  *
  *
  * @author TheTemportalist
  */
-class BlockTardisDoor(n: String) extends BlockWrapperTE(
+class BlockTardisDoor(n: String) extends BlockTile(
 	Tardis.MODID, n, classOf[ItemTDoor], classOf[TEDoor]
 ) {
 
-	this.setDefaultState(
-		this.blockState.getBaseState
-				.withProperty(BlockDoor.FACING, EnumFacing.EAST)
-				.withProperty(BlockDoor.OPEN, false)
-				.withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.LOWER)
-	)
-
 	override def isOpaqueCube: Boolean = false
 
-	override def isFullCube: Boolean = false
-
-	override def onBlockActivated(worldIn: World, pos: BlockPos, stateIn: IBlockState,
-			playerIn: EntityPlayer, side: EnumFacing, hitX: Float, hitY: Float,
-			hitZ: Float): Boolean = {
-		if (!playerIn.isSneaking) {
-			worldIn.setBlockState(pos, stateIn.cycleProperty(OPEN), 3)
-			val otherPos: BlockPos =
-				if (stateIn.getValue(HALF) == EnumDoorHalf.LOWER) pos.up()
-				else pos.down()
-			val otherState: IBlockState = worldIn.getBlockState(otherPos)
-			worldIn.setBlockState(otherPos, otherState.cycleProperty(OPEN), 3)
-			worldIn.markBlockRangeForRenderUpdate(otherPos, pos)
-			worldIn.playAuxSFXAtEntity(
-				playerIn,
-				if (stateIn.getValue(OPEN).asInstanceOf[Boolean].booleanValue) 1003 else 1006,
-				pos, 0
-			)
-			return true
+	override def onBlockActivated(worldIn: World, x: Int, y: Int, z: Int, player: EntityPlayer,
+			side: Int, subX: Float, subY: Float, subZ: Float): Boolean = {
+		if (player.isSneaking) {
+			TardisManager.movePlayerOutOfTardis(player)
 		}
 		else {
-			TardisManager.movePlayerOutOfTardis(playerIn)
-			return true
+			this.cycleOpen_Tall(worldIn, new V3O(x, y, z))
+			// if these sounds are inverted, then move above the cycleOpen_Tall or swap the ints
+			worldIn.playAuxSFXAtEntity(
+				player,
+				if (this.isOpen(worldIn.getBlockMetadata(x, y, z))) 1003 else 1006,
+				x, y, z, 0
+			)
+			TardisManager.getDimData(worldIn).getTardis().setDoorOpen(
+				this.isOpen(new V3O(x, y, z).getBlockMeta(worldIn))
+			)
 		}
-		//return false
+		true
 	}
 
-	override def onNeighborBlockChange(
-			worldIn: World, pos: BlockPos, state: IBlockState, neighborBlock: Block
-			): Unit = {
-		// Find out which part this block is
-		state.getValue(HALF) match {
-			case EnumDoorHalf.UPPER =>
-				// get the pos and state below
-				val lPos: BlockPos = pos.down
-				val lState: IBlockState = worldIn.getBlockState(lPos)
+	def cycleOpen_Tall(world: World, pos: V3O): Unit = {
+		if (world == null) return
+		val min: Int = -this.getHalf(pos.getBlockMeta(world))
+		for (h: Int <- min to 1 + min) this.cycleOpen(world, pos + new V3O(0, h, 0))
+	}
 
-				// make sure they are not just "gone"
-				if (lState.getBlock != this) {
-					worldIn.setBlockToAir(pos)
-				}
-				else if (neighborBlock != this) {
-					this.onNeighborBlockChange(worldIn, lPos, lState, neighborBlock)
-				}
-			case EnumDoorHalf.LOWER =>
-				var shouldDrop: Boolean = false
-				// get the pos and state above
-				val uPos: BlockPos = pos.up
-				val uState: IBlockState = worldIn.getBlockState(uPos)
+	def cycleOpen(world: World, pos: V3O): Unit = {
+		if (world == null) return
+		pos.setBlockMeta(world, this.cycleOpen(pos.getBlockMeta(world)), 3)
+	}
 
-				// If the uppor is just "gone", then drop
-				if (uState.getBlock != this) {
-					worldIn.setBlockToAir(pos)
-					shouldDrop = true
-				}
+	def cycleOpen(meta: Int): Int = if ((meta & 1) > 0) meta & ~1 else meta | 1
 
-				if (shouldDrop && !worldIn.isRemote) {
-					this.dropBlockAsItem(worldIn, pos, state, 0)
+	def getMeta(dir: ForgeDirection, open: Boolean, half: Boolean): Unit = {
+		(if (open) 1 else 0) | ((if (half) 1 else 0) << 1) |
+				((dir.ordinal() - 2) << 2)
+	}
+
+	def isOpen(meta: Int): Boolean = (meta & 1) > 0
+
+	def getHalf(meta: Int): Int = (meta & 2) / 2
+
+	def setHalf(meta: Int, isUpper: Boolean): Int =
+		if ((meta & 2) > 0) {
+			if (!isUpper) meta & ~2
+			else meta
+		} else {
+			if (isUpper) meta | 2
+			else meta
+		}
+
+	def getFacing(meta: Int): ForgeDirection = ForgeDirection.getOrientation(
+		(meta >> 2) + 2
+	)
+
+	def setFacing(meta: Int, dir: ForgeDirection): Int = {
+		val facing: Int = (meta >> 2) + 2
+		val unset: Int = meta & ~((facing - 2) << 2)
+		unset | ((dir.ordinal() - 2) << 2)
+	}
+
+	override def onNeighborBlockChange(worldIn: World, x: Int, y: Int, z: Int,
+			neighbor: Block): Unit = {
+		val meta: Int = worldIn.getBlockMetadata(x, y, z)
+		this.getHalf(meta) match {
+			case 0 => // lower
+				if (new V3O(x, y, z).up().getBlock(worldIn) != this) {
+					worldIn.setBlockToAir(x, y, z)
+					this.dropBlockAsItem(worldIn, x, y, z, new ItemStack(this))
+				}
+			case 1 => // upper
+				if (new V3O(x, y, z).down().getBlock(worldIn) != this) {
+					worldIn.setBlockToAir(x, y, z)
 				}
 			case _ =>
 		}
 	}
 
-	override def getItemDropped(state: IBlockState, rand: Random, fortune: Int): Item = {
-		if (state.getValue(HALF) == EnumDoorHalf.UPPER) null else this.getItem
-	}
-
-	override def canPlaceBlockAt(worldIn: World, pos: BlockPos): Boolean = {
-		(pos.getY < worldIn.getHeight - 1) && super.canPlaceBlockAt(worldIn, pos) &&
-				super.canPlaceBlockAt(worldIn, pos.up())
+	override def canPlaceBlockAt(world: World, x: Int, y: Int, z: Int): Boolean = {
+		y < world.getHeight - 1 && super.canPlaceBlockAt(world, x, y, z) &&
+				super.canPlaceBlockAt(world, x, y + 1, z)
 	}
 
 	override def getMobilityFlag: Int = 1
+
+	/*
+	override def onBlockHarvested(world: World, x: Int, y: Int, z: Int, meta: Int,
+			player: EntityPlayer): Unit = {
+
+	}
 
 	override def onBlockHarvested(worldIn: World, pos: BlockPos, state: IBlockState,
 			player: EntityPlayer): Unit = {
@@ -120,55 +128,60 @@ class BlockTardisDoor(n: String) extends BlockWrapperTE(
 			worldIn.setBlockToAir(lPos)
 		}
 	}
+	*/
 
-	override def getActualState(stateIn: IBlockState, worldIn: IBlockAccess,
-			pos: BlockPos): IBlockState = {
-		stateIn.getValue(HALF) match {
-			case EnumDoorHalf.UPPER =>
-				val oState: IBlockState = worldIn.getBlockState(pos.down)
-				if (oState.getBlock == this) {
-					return stateIn.withProperty(FACING, oState.getValue(FACING))
-							.withProperty(OPEN, oState.getValue(OPEN))
-				}
-			case _ =>
+	override def addCollisionBoxesToList(world: World, x: Int, y: Int, z: Int, mask: AxisAlignedBB,
+			list: util.List[_], entity: Entity): Unit = {
+		// todo this needs to be optimized
+		val pixel: Double = 0.0625D
+		val iPixel: Double = 1 - pixel
+		val west: AxisAlignedBB = AxisAlignedBB.getBoundingBox(
+			0, pixel, 0, pixel, 1, 1)
+		val east: AxisAlignedBB = AxisAlignedBB.getBoundingBox(
+			iPixel - pixel, pixel, pixel, iPixel, 1, iPixel)
+		val north: AxisAlignedBB = AxisAlignedBB.getBoundingBox(
+			0, pixel, 0, iPixel, 1, pixel)
+		val south: AxisAlignedBB = AxisAlignedBB.getBoundingBox(
+			0, pixel, iPixel, iPixel, 1, 1)
+		val aabbs: Map[Int, Array[AxisAlignedBB]] = Map[Int, Array[AxisAlignedBB]](
+			0 -> Array[AxisAlignedBB](
+				AxisAlignedBB.getBoundingBox(0, 0, 0, 1, pixel, 1),
+				west, north, south, east
+			),
+			1 -> Array[AxisAlignedBB](
+				AxisAlignedBB.getBoundingBox(0, iPixel, 0, 1, 1, 1),
+				west, north, south, east
+			)
+		)
+		val removed: Map[ForgeDirection, Int] = Map[ForgeDirection, Int](
+			ForgeDirection.NORTH -> 2,
+			ForgeDirection.EAST -> 4,
+			ForgeDirection.SOUTH -> 3,
+			ForgeDirection.WEST -> 1
+		)
+
+		val meta: Int = world.getBlockMetadata(x, y, z)
+		val half: Int = this.getHalf(meta)
+		val isOpen: Boolean = this.isOpen(meta) && !entity.isInstanceOf[EntityTardis]
+		val facing: ForgeDirection = this.getFacing(meta)
+		val index: Int = if (isOpen && removed.contains(facing)) removed.get(facing).get else -1
+		for (i <- 0 until aabbs(half).length) {
+			var aabb: AxisAlignedBB = aabbs(half)(i)
+			aabb = AxisAlignedBB.getBoundingBox(
+				x + aabb.minX,
+				y + aabb.minY,
+				z + aabb.minZ,
+				x + aabb.maxX,
+				y + aabb.maxY,
+				z + aabb.maxZ
+			)
+			if (i != index && mask.intersectsWith(aabb)) Generic.addToList(list, aabb)
 		}
-		stateIn
 	}
 
-	override def getMetaFromState(state: IBlockState): Int = {
-		var meta: Int = 0
 
-		// get the facing. 0-3. SWNE
-		val facing: Int = state.getValue(FACING).asInstanceOf[EnumFacing].rotateY()
-				.getHorizontalIndex
-		// separate in tierms of 4 (meta 0, 4, 8, 12)
-		meta |= facing * 4
-		// if we are on the top, add 2
-		if (state.getValue(HALF) == EnumDoorHalf.UPPER)
-			meta += 2
-		// if we are open, add 1
-		if (state.getValue(OPEN).asInstanceOf[Boolean].booleanValue())
-			meta += 1
 
-		meta
-	}
-
-	override def getStateFromMeta(meta: Int): IBlockState = {
-		val facing: Int = meta / 4
-		val remain: Int = meta - (facing * 4)
-		val isUpper: Boolean = remain > 1
-		val isOpen: Boolean = remain % 2 != 0
-		this.getDefaultState.
-				withProperty(FACING, EnumFacing.getHorizontal(facing)).
-				withProperty(HALF, if (isUpper) EnumDoorHalf.UPPER else EnumDoorHalf.LOWER).
-				withProperty(OPEN, Boolean.box(isOpen))
-	}
-
-	@SideOnly(Side.CLIENT)
-	override def getBlockLayer: EnumWorldBlockLayer = EnumWorldBlockLayer.CUTOUT
-
-	override def createBlockState(): BlockState = new BlockState(this, HALF, FACING, OPEN)
-
+	/*
 	override def addCollisionBoxesToList(worldIn: World, pos: BlockPos, state: IBlockState,
 			mask: AxisAlignedBB, list: util.List[_], collidingEntity: Entity): Unit = {
 
@@ -177,10 +190,11 @@ class BlockTardisDoor(n: String) extends BlockWrapperTE(
 		val pixel: Double = 0.0625D
 		val iPixel: Double = 1 - pixel
 		val west: AxisAlignedBB = AxisAlignedBB.fromBounds(0, pixel, 0, pixel, 1, 1)
-		val east: AxisAlignedBB = AxisAlignedBB.fromBounds(iPixel - pixel, pixel, pixel, iPixel, 1, iPixel)
+		val east: AxisAlignedBB = AxisAlignedBB
+				.fromBounds(iPixel - pixel, pixel, pixel, iPixel, 1, iPixel)
 		val north: AxisAlignedBB = AxisAlignedBB.fromBounds(0, pixel, 0, iPixel, 1, pixel)
 		val south: AxisAlignedBB = AxisAlignedBB.fromBounds(0, pixel, iPixel, iPixel, 1, 1)
-		val aabbs: Map[EnumDoorHalf, Array[AxisAlignedBB]] = Map[EnumDoorHalf, Array[AxisAlignedBB]] (
+		val aabbs: Map[EnumDoorHalf, Array[AxisAlignedBB]] = Map[EnumDoorHalf, Array[AxisAlignedBB]](
 			EnumDoorHalf.LOWER -> Array[AxisAlignedBB](
 				AxisAlignedBB.fromBounds(0, 0, 0, 1, pixel, 1),
 				west, north, south, east
@@ -216,6 +230,7 @@ class BlockTardisDoor(n: String) extends BlockWrapperTE(
 			if (i != index && mask.intersectsWith(aabb)) Generic.addToList(list, aabb)
 		}
 	}
+	*/
 
 	/*
 	override def onEntityCollidedWithBlock(

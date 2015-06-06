@@ -1,13 +1,11 @@
 package com.tardis.client.model
 
-import com.tardis.common.block.BlockTardisDoor
-import com.temportalist.origin.library.common.lib.vec.V3O
-import com.temportalist.origin.wrapper.client.render.model.ModelWrapper
-import net.minecraft.block.BlockDoor
-import net.minecraft.block.state.IBlockState
+import com.tardis.common.init.TardisBlocks
+import com.temportalist.origin.api.client.render.model.ModelWrapper
+import com.temportalist.origin.api.common.lib.vec.V3O
 import net.minecraft.client.model.ModelRenderer
 import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.EnumFacing
+import net.minecraftforge.common.util.ForgeDirection
 
 /**
  *
@@ -96,50 +94,42 @@ class ModelDoor() extends ModelWrapper(128, 128) {
 
 	}
 
-	override def render(te: TileEntity): Unit = {
-		// todo move to WorldHelper
-		val state: IBlockState = new V3O (te).getBlockState(te.getWorld)
+	override def render(te: TileEntity): Unit = this.render(te.getBlockMetadata)
 
-		te.getBlockType match {
-			case _: BlockTardisDoor =>
+	def render(meta: Int): Unit = {
+		val facing: ForgeDirection = TardisBlocks.tDoor.getFacing(meta)
 
-				val facing: EnumFacing = state.getValue(BlockDoor.FACING).asInstanceOf[EnumFacing]
+		val yRot: Float = Math.toRadians(
+			facing match {
+				case ForgeDirection.NORTH => 0
+				case ForgeDirection.WEST => 90
+				case ForgeDirection.SOUTH => 180
+				case ForgeDirection.EAST => 270
+				case _ => 0
+			}
+		).toFloat
+		//Math.toRadians((facing.getIndex - 2) * 0).toFloat
+		val doorRot: Float = Math.toRadians(
+			// todo move this to a constant somewhere
+			if (TardisBlocks.tDoor.isOpen(meta)) 80
+			else 0
+		).toFloat
 
-				val yRot: Float = Math.toRadians(
-					facing match {
-						case EnumFacing.NORTH => 0
-						case EnumFacing.WEST => 90
-						case EnumFacing.SOUTH => 180
-						case EnumFacing.EAST => 270
-						case _ => 0
-					}
-				).toFloat
-				//Math.toRadians((facing.getIndex - 2) * 0).toFloat
-				val doorRot: Float = Math.toRadians(
-					// todo move this to a constant somewhere
-					if (state.getValue(BlockDoor.OPEN).asInstanceOf[Boolean]) 80
-					else 0
-				).toFloat
+		//println (state.getValue(BlockDoor.HALF) + "|" + te.getBlockMetadata)
 
-				//println (state.getValue(BlockDoor.HALF) + "|" + te.getBlockMetadata)
-
-				state.getValue(BlockDoor.HALF) match {
-					case BlockDoor.EnumDoorHalf.LOWER =>
-						this.base.rotateAngleY = yRot
-						this.b_doorL.rotateAngleY = -doorRot
-						this.b_doorR.rotateAngleY = doorRot
-						this.base.render(ModelWrapper.f5)
-					case BlockDoor.EnumDoorHalf.UPPER =>
-						this.top.rotateAngleY = yRot
-						this.t_doorL.rotateAngleY = -doorRot
-						this.t_doorR.rotateAngleY = doorRot
-						this.top.render(ModelWrapper.f5)
-					case _ =>
-				}
-
+		TardisBlocks.tDoor.getHalf(meta) match {
+			case 0 =>
+				this.base.rotateAngleY = yRot
+				this.b_doorL.rotateAngleY = -doorRot
+				this.b_doorR.rotateAngleY = doorRot
+				this.base.render(ModelWrapper.f5)
+			case 1 =>
+				this.top.rotateAngleY = yRot
+				this.t_doorL.rotateAngleY = -doorRot
+				this.t_doorR.rotateAngleY = doorRot
+				this.top.render(ModelWrapper.f5)
 			case _ =>
 		}
-
 	}
 
 }

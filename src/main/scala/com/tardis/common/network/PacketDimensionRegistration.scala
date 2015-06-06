@@ -2,8 +2,9 @@ package com.tardis.common.network
 
 import java.util
 
+import com.tardis.common.Tardis
 import com.tardis.common.dimensions.TardisManager
-import com.temportalist.origin.library.common.nethandler.IPacket
+import com.temportalist.origin.api.common.network.IPacket
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraftforge.common.DimensionManager
 
@@ -13,6 +14,8 @@ import net.minecraftforge.common.DimensionManager
  * @author TheTemportalist
  */
 class PacketDimensionRegistration() extends IPacket {
+
+	override def getChannel(): String = Tardis.MODID
 
 	def this(dimID: Int) {
 		this()

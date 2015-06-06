@@ -1,8 +1,8 @@
 package com.tardis.client.model
 
 import com.tardis.common.EntityTardis
-import com.temportalist.origin.library.common.lib.vec.V3O
-import com.temportalist.origin.wrapper.client.render.model.ModelWrapper
+import com.temportalist.origin.api.client.render.model.ModelWrapper
+import com.temportalist.origin.api.common.lib.vec.V3O
 import net.minecraft.client.model.ModelRenderer
 import net.minecraft.entity.Entity
 

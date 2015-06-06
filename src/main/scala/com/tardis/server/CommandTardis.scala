@@ -1,14 +1,15 @@
 package com.tardis.server
 
-import com.tardis.common.{PlayerTardis, EntityTardis}
-import com.tardis.common.item.ItemPlacer
-import com.temportalist.origin.library.common.lib.vec.V3O
+import com.tardis.common.EntityTardis
+import com.temportalist.origin.api.common.item.ItemPlacer
+import com.temportalist.origin.api.common.lib.vec.V3O
 import net.minecraft.command.{CommandBase, ICommandSender}
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.util.{EnumFacing, MathHelper}
+import net.minecraft.util.MathHelper
 import net.minecraft.world.World
 import net.minecraftforge.common.DimensionManager
+import net.minecraftforge.common.util.ForgeDirection
 
 /**
  *
@@ -42,12 +43,12 @@ class CommandTardis() extends CommandBase {
 						val dir: Int = MathHelper.floor_double(
 							((player.rotationYaw * 4F) / 360F) + 0.5D
 						) & 3
-						var facing: EnumFacing = null
+						var facing: ForgeDirection = null
 						dir match {
-							case 0 => facing = EnumFacing.SOUTH // 3
-							case 1 => facing = EnumFacing.WEST // 4
-							case 2 => facing = EnumFacing.NORTH // 2
-							case 3 => facing = EnumFacing.EAST // 5
+							case 0 => facing = ForgeDirection.SOUTH // 3
+							case 1 => facing = ForgeDirection.WEST // 4
+							case 2 => facing = ForgeDirection.NORTH // 2
+							case 3 => facing = ForgeDirection.EAST // 5
 							case _ =>
 						}
 
@@ -58,12 +59,9 @@ class CommandTardis() extends CommandBase {
 							new V3O(player) + (new V3O(facing) * 2), dir * 90
 						)
 
-						PlayerTardis.open(tardis.asInstanceOf[EntityTardis], player)
-
 					case "point" =>
 				}
 			case "close" =>
-				PlayerTardis.close(player)
 
 			case _ =>
 		}
