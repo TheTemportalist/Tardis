@@ -7,6 +7,7 @@ import com.temportalist.origin.api.common.resource.IModResource
 import com.xcompwiz.lookingglass.api.hook.WorldViewAPI2
 import com.xcompwiz.lookingglass.api.{APIInstanceProvider, APIUndefined, APIVersionRemoved, APIVersionUndefined}
 import net.minecraft.crash.CrashReport
+import net.minecraft.util.ChunkCoordinates
 
 /**
  * Created by TheTemportalist on 9/6/2015.
@@ -52,9 +53,10 @@ object LookingGlass extends IModResource {
 		this.api match {
 			case wvAPI: WorldViewAPI2 =>
 				val dim = tardis.getInteriorDimension()
-				val data = TardisManager.getDimData(dim, isServer = false)
-				val wv = wvAPI.createWorldView(dim,
-					(data.getDoorPos + (V3O.UP * 5)).toChunkCoords, 16, 32)
+				//val data = TardisManager.getDimData(dim, isServer = false)
+				val wv = wvAPI.createWorldView(0, new ChunkCoordinates(0, 4, 10), 512, 1048)
+				wv.getCamera.setPitch(180)
+				//wv.getCamera.setYaw(-90)
 				if (wv != null) tardis.setWorldView(wv)
 			case _ =>
 		}

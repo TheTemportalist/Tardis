@@ -35,21 +35,37 @@ class RenderTardis(model: ModelBase) extends RenderEntity() {
 					val worldView = tardis.getWorldView
 					if (worldView == null)
 						LookingGlass.addWindow(tardis)
-					if (worldView != null) {
-						worldView.getCamera.setPitch(0)
-						worldView.getCamera.setYaw(-10)
+					if (worldView != null && worldView.isReady) {
+						/*
+						worldView.getCamera.setPitch(180)
+						worldView.getCamera.setYaw(0)
 						worldView.getCamera.setLocation(
 							0,
-							5,
+							10,
 							0
 						)
+						*/
+						//worldView.getCamera.setPitch(180)
+						//println(worldView.getCamera.getPitch)
 						Rendering.Gl.enable(GL11.GL_ALPHA_TEST, isOn = false)
 						GL11.glBindTexture(GL11.GL_TEXTURE_2D, worldView.getTexture)
 						TessRenderer.startQuads()
+						/*
 						TessRenderer.addVertex(-0.5, 0, 0.45, 0, 1)
 						TessRenderer.addVertex(+0.5, 0, 0.45, 1, 1)
 						TessRenderer.addVertex(+0.5, 2, 0.45, 1, 0)
 						TessRenderer.addVertex(-0.5, 2, 0.45, 0, 0)
+						*/
+						TessRenderer.addVertex(0, 0, 2, 1, 0)
+						TessRenderer.addVertex(2, 0, 2, 1, 1)
+						TessRenderer.addVertex(2, 4, 2, 0, 1)
+						TessRenderer.addVertex(0, 4, 2, 0, 0)
+
+						TessRenderer.addVertex(0, 0, 3, 0, 1)
+						TessRenderer.addVertex(4, 0, 3, 0, 0)
+						TessRenderer.addVertex(4, 2, 3, 1, 0)
+						TessRenderer.addVertex(0, 2, 3, 1, 1)
+
 						TessRenderer.draw()
 						Rendering.Gl.enable(GL11.GL_ALPHA_TEST, isOn = true)
 					}

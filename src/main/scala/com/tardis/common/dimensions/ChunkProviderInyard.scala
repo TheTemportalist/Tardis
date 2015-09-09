@@ -28,7 +28,7 @@ class ChunkProviderInyard(val world: World, data: InyardData) extends IChunkProv
 	override def populate(provider: IChunkProvider, chunkX: Int, chunkZ: Int): Unit = {
 		val doorPos: V3O = this.data.getDoorPos
 		if ((doorPos.x_i() >> 4) == chunkX && (doorPos.z_i() >> 4) == chunkZ) {
-			val radius: Int = 1
+			val radius: Int = 3
 			for (xOff <- -radius to radius) for (zOff <- -radius to radius) {
 				val pos: V3O = doorPos.plus(xOff, -1, zOff)
 				this.world.setBlock(pos.x_i(), pos.y_i(), pos.z_i(), Blocks.stonebrick, 0, 3)

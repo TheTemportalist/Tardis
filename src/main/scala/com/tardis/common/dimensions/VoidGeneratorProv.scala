@@ -37,7 +37,8 @@ class VoidGeneratorProv(world: World) extends IChunkProvider {
 		if (chunkX == 0 && chunkz == 0) {
 			val chunkOrigin: V3O = new V3O(chunkX * 16, 0, chunkz * 16)
 
-			for (xOff <- -2 to 2) for (zOff <- -2 to 2) {
+			val radius = 4
+			for (xOff <- -radius to radius) for (zOff <- -radius to radius) {
 				(chunkOrigin + new V3O(xOff, 0, zOff)).setBlock(this.world, Blocks.stone)
 			}
 

@@ -112,6 +112,8 @@ class EntityTardis(w: World) extends Entity(w) {
 		if (this.isDoorOpen() && WorldHelper.isInFieldOfView(this, player)) {
 			if (new V3O(player).distance(new V3O(this)) <= 1.3d) {
 				TardisManager.movePlayerIntoTardis(player, this)
+				if (this.worldObj.isRemote)
+					this.worldView.markDirty()
 			}
 		}
 	}
@@ -119,6 +121,10 @@ class EntityTardis(w: World) extends Entity(w) {
 	override def interactFirst(playerIn: EntityPlayer): Boolean = {
 		if (WorldHelper.isInFieldOfView(this, playerIn) && this.getInteriorDimension() != 0) {
 			if (this.isDoorOpen()) this.closeDoor() else this.openDoor()
+			if (this.worldObj.isRemote) {
+				//println("marked dirty")
+				this.worldView.markDirty()
+			}
 			val dimData: InyardData = TardisManager.getDimData(
 				this.getInteriorDimension(), WorldHelper.isServer(this))
 			val world: WorldServer = DimensionManager.getWorld(this.getInteriorDimension())
@@ -162,6 +168,7 @@ class EntityTardis(w: World) extends Entity(w) {
 
 	override def onEntityUpdate(): Unit = {
 		super.onEntityUpdate()
+		if (this.worldView != null) this.worldView.markDirty()
 		if (!this.worldObj.isRemote) {
 			if (this.chunkTicket == null) {
 				this.chunkTicket = ForgeChunkManager.requestTicket(
