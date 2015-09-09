@@ -3,7 +3,7 @@ package com.tardis.common.dimensions
 import java.util
 
 import com.tardis.common.init.TardisBlocks
-import com.temportalist.origin.api.common.lib.vec.V3O
+import com.temportalist.origin.api.common.lib.V3O
 import net.minecraft.entity.EnumCreatureType
 import net.minecraft.init.Blocks
 import net.minecraft.util.IProgressUpdate

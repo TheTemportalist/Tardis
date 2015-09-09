@@ -4,15 +4,16 @@ import java.util.UUID
 
 import com.tardis.common.dimensions.{InyardData, TardisManager}
 import com.tardis.common.init.TardisBlocks
-import com.temportalist.origin.api.common.lib.vec.V3O
+import com.temportalist.origin.api.common.lib.V3O
 import com.temportalist.origin.api.common.utility.WorldHelper
+import com.xcompwiz.lookingglass.api.view.IWorldView
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util._
-import net.minecraft.world.{WorldServer, World}
-import net.minecraftforge.common.{DimensionManager, ForgeChunkManager}
+import net.minecraft.world.{World, WorldServer}
 import net.minecraftforge.common.ForgeChunkManager.Ticket
+import net.minecraftforge.common.{DimensionManager, ForgeChunkManager}
 
 /**
  *
@@ -22,6 +23,8 @@ import net.minecraftforge.common.ForgeChunkManager.Ticket
 class EntityTardis(w: World) extends Entity(w) {
 
 	this.setSize(1F, 2.5F)
+
+	private var worldView: IWorldView = null
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -120,7 +123,7 @@ class EntityTardis(w: World) extends Entity(w) {
 				this.getInteriorDimension(), WorldHelper.isServer(this))
 			val world: WorldServer = DimensionManager.getWorld(this.getInteriorDimension())
 			if (world != null)
-				TardisBlocks.tDoor.cycleOpen_Tall(world, dimData.getDoorPos())
+				TardisBlocks.tDoor.cycleOpen_Tall(world, dimData.getDoorPos)
 		}
 		true
 	}
@@ -155,27 +158,44 @@ class EntityTardis(w: World) extends Entity(w) {
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	private var chunkTicket: Ticket = null
+	private var dimTicket: Ticket = null
 
 	override def onEntityUpdate(): Unit = {
 		super.onEntityUpdate()
-		if (!this.worldObj.isRemote && this.chunkTicket == null) {
-			this.chunkTicket = ForgeChunkManager.requestTicket(
-				Tardis, this.worldObj, ForgeChunkManager.Type.ENTITY)
-			if (this.chunkTicket != null) {
-				this.chunkTicket.bindEntity(this)
-				this.chunkTicket.getModData.setString("id", "Tardis")
-				val chunkPos: V3O = this.getChunkPos()
-				chunkPos.writeTo(this.chunkTicket.getModData, "chunkPos")
-				// auto write entities by dimid and uuid
-				this.chunkTicket.getModData.setInteger(
-					"tardisDim", this.worldObj.provider.dimensionId
-				)
-				val uuid: UUID = this.getUniqueID
-				this.chunkTicket.getModData.setLong("tardisIDmax", uuid.getMostSignificantBits)
-				this.chunkTicket.getModData.setLong("tardisIDmin", uuid.getLeastSignificantBits)
-				this.chunkTicket.getModData.setInteger("tardisID", this.getEntityId)
-				ForgeChunkManager.forceChunk(this.chunkTicket, chunkPos.toChunkPair())
+		if (!this.worldObj.isRemote) {
+			if (this.chunkTicket == null) {
+				this.chunkTicket = ForgeChunkManager.requestTicket(
+					Tardis, this.worldObj, ForgeChunkManager.Type.ENTITY)
+				if (this.chunkTicket != null) {
+					this.chunkTicket.bindEntity(this)
+					this.chunkTicket.getModData.setString("id", "Tardis")
+					val chunkPos: V3O = this.getChunkPos()
+					chunkPos.writeTo(this.chunkTicket.getModData, "chunkPos")
+					// auto write entities by dimid and uuid
+					this.chunkTicket.getModData.setInteger(
+						"tardisDim", this.worldObj.provider.dimensionId
+					)
+					val uuid: UUID = this.getUniqueID
+					this.chunkTicket.getModData.setLong("tardisIDmax", uuid.getMostSignificantBits)
+					this.chunkTicket.getModData.setLong("tardisIDmin", uuid.getLeastSignificantBits)
+					this.chunkTicket.getModData.setInteger("tardisID", this.getEntityId)
+					ForgeChunkManager.forceChunk(this.chunkTicket, chunkPos.toChunkPair)
+				}
 			}
+			/*
+			if (this.dimTicket == null) {
+				this.dimTicket = ForgeChunkManager.requestTicket(
+					Tardis, this.worldObj, ForgeChunkManager.Type.ENTITY)
+				if (this.dimTicket != null) {
+					this.dimTicket.bindEntity(this)
+					this.dimTicket.getModData.setString("id", "TardisDim")
+					val doorPos = TardisManager.getDimData(this.getInteriorDimension(), !this.worldObj.isRemote).getDoorPos
+					val chunkPos = new V3O(doorPos.x_i() >> 4, 0, doorPos.z_i() >> 4)
+					chunkPos.writeTo(this.dimTicket.getModData, "chunkPos")
+					ForgeChunkManager.forceChunk(this.dimTicket, chunkPos.toChunkPair)
+				}
+			}
+			*/
 		}
 	}
 
@@ -189,5 +209,14 @@ class EntityTardis(w: World) extends Entity(w) {
 		if (!this.worldObj.isRemote)
 			ForgeChunkManager.releaseTicket(this.chunkTicket)
 	}
+
+	def setWorldView(worldView: IWorldView): Unit = {
+		this.worldView = worldView
+		if (this.worldView != null) {
+			this.worldView.markDirty()
+		}
+	}
+
+	def getWorldView: IWorldView = this.worldView
 
 }

@@ -1,14 +1,12 @@
 package com.tardis.common.tile
 
-import com.temportalist.origin.wrapper.common.tile.TEWrapper
+import com.temportalist.origin.foundation.common.tile.TEBase
 
 /**
  *
  *
  * @author TheTemportalist
  */
-class TEDoor() extends TEWrapper("TardisDoor") {
-
-
+class TEDoor() extends TEBase("TardisDoor") {
 
 }

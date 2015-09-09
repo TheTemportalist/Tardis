@@ -1,8 +1,8 @@
 package com.tardis.client.model
 
 import com.tardis.common.EntityTardis
-import com.temportalist.origin.api.client.render.model.ModelWrapper
-import com.temportalist.origin.api.common.lib.vec.V3O
+import com.temportalist.origin.api.client.render.Model
+import com.temportalist.origin.api.common.lib.V3O
 import net.minecraft.client.model.ModelRenderer
 import net.minecraft.entity.Entity
 
@@ -11,7 +11,7 @@ import net.minecraft.entity.Entity
  *
  * @author TheTemportalist
  */
-class ModelTardis() extends ModelWrapper(128, 128) {
+class ModelTardis() extends Model(128, 128) {
 
 	val roof1: ModelRenderer = this.createModel(
 		new V3O(0, 35, 0),

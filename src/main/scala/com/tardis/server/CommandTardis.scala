@@ -2,7 +2,7 @@ package com.tardis.server
 
 import com.tardis.common.EntityTardis
 import com.temportalist.origin.api.common.item.ItemPlacer
-import com.temportalist.origin.api.common.lib.vec.V3O
+import com.temportalist.origin.api.common.lib.V3O
 import net.minecraft.command.{CommandBase, ICommandSender}
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer

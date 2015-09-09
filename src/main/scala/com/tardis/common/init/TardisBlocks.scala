@@ -1,9 +1,9 @@
 package com.tardis.common.init
 
-import com.tardis.common.block.{BlockTardisDoor, BlockConsole}
-import com.tardis.common.tile.{TEDoor, TEConsole}
-import com.temportalist.origin.api.common.register.BlockRegister
-import com.temportalist.origin.common.Origin
+import com.tardis.common.block.{BlockConsole, BlockTardisDoor}
+import com.tardis.common.tile.{TEConsole, TEDoor}
+import com.temportalist.origin.foundation.common.register.BlockRegister
+import com.temportalist.origin.internal.common.Origin
 
 /**
  *

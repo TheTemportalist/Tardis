@@ -1,11 +1,11 @@
 package com.tardis.common.init
 
-import com.tardis.common.{Tardis, EntityTardis}
 import com.tardis.common.dimensions.TardisManager
-import com.temportalist.origin.api.common.item.ItemPlacer
-import com.temportalist.origin.api.common.register.ItemRegister
-import com.temportalist.origin.common.Origin
-import com.temportalist.origin.wrapper.common.item.ItemWrapper
+import com.tardis.common.{EntityTardis, Tardis}
+import com.tardis.lookingglass.LookingGlass
+import com.temportalist.origin.api.common.item.{ItemBase, ItemPlacer}
+import com.temportalist.origin.foundation.common.register.ItemRegister
+import com.temportalist.origin.internal.common.Origin
 import net.minecraft.entity.Entity
 
 /**
@@ -15,7 +15,7 @@ import net.minecraft.entity.Entity
  */
 object TardisItems extends ItemRegister {
 
-	var tardis: ItemWrapper = null
+	var tardis: ItemBase = null
 
 	override def register(): Unit = {
 
@@ -24,10 +24,18 @@ object TardisItems extends ItemRegister {
 				// todo this causes lag when spawning a tardis
 				//new Thread(new Runnable {
 				//	override def run(): Unit = {
-				TardisManager.registerTardis(entity.asInstanceOf[EntityTardis])
-				entity.setLocationAndAngles(
-					entity.posX, entity.posY, entity.posZ, 0F, 0F
-				)
+				entity match {
+					case tardis: EntityTardis =>
+						TardisManager.registerTardis(tardis)
+						tardis.setLocationAndAngles(
+							tardis.posX, tardis.posY, tardis.posZ, 0F, 0F
+						)
+						if (tardis.worldObj.isRemote)
+							LookingGlass.addWindow(tardis)
+					case _ =>
+				}
+
+
 				//	}
 				//}).start()
 			}

@@ -12,7 +12,7 @@ import net.minecraft.world.World
  */
 class ProxyCommon() extends IProxy {
 
-	override def registerRender(): Unit = {}
+	override def register(): Unit = {}
 
 	override def getServerElement(ID: Int, player: EntityPlayer, world: World, x: Int, y: Int,
 			z: Int, tileEntity: TileEntity): AnyRef = null

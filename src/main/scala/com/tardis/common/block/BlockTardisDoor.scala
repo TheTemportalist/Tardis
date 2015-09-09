@@ -7,7 +7,7 @@ import com.tardis.common.item.ItemTDoor
 import com.tardis.common.tile.TEDoor
 import com.tardis.common.{EntityTardis, Tardis}
 import com.temportalist.origin.api.common.block.BlockTile
-import com.temportalist.origin.api.common.lib.vec.V3O
+import com.temportalist.origin.api.common.lib.V3O
 import com.temportalist.origin.api.common.utility.Generic
 import net.minecraft.block.Block
 import net.minecraft.entity.Entity
@@ -41,7 +41,7 @@ class BlockTardisDoor(n: String) extends BlockTile(
 				if (this.isOpen(worldIn.getBlockMetadata(x, y, z))) 1003 else 1006,
 				x, y, z, 0
 			)
-			TardisManager.getDimData(worldIn).getTardis().setDoorOpen(
+			TardisManager.getDimData(worldIn).getTardis.setDoorOpen(
 				this.isOpen(new V3O(x, y, z).getBlockMeta(worldIn))
 			)
 		}
@@ -74,7 +74,8 @@ class BlockTardisDoor(n: String) extends BlockTile(
 		if ((meta & 2) > 0) {
 			if (!isUpper) meta & ~2
 			else meta
-		} else {
+		}
+		else {
 			if (isUpper) meta | 2
 			else meta
 		}
@@ -178,8 +179,6 @@ class BlockTardisDoor(n: String) extends BlockTile(
 			if (i != index && mask.intersectsWith(aabb)) Generic.addToList(list, aabb)
 		}
 	}
-
-
 
 	/*
 	override def addCollisionBoxesToList(worldIn: World, pos: BlockPos, state: IBlockState,

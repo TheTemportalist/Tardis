@@ -2,9 +2,8 @@ package com.tardis.client.render
 
 import com.tardis.common.Tardis
 import com.tardis.common.tile.TEConsole
-import com.temportalist.origin.api.client.render.TERenderItem
-import com.temportalist.origin.api.client.render.model.ModelWrapper
-import com.temportalist.origin.api.common.lib.vec.V3O
+import com.temportalist.origin.api.client.render.{Model, TERenderItem}
+import com.temportalist.origin.api.common.lib.V3O
 import net.minecraft.client.model.ModelRenderer
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.util.ResourceLocation
@@ -22,7 +21,7 @@ class RenderConsole() extends TERenderItem(new ResourceLocation(
 
 	override def getRenderingTileItem(): TileEntity = this.dummy
 
-	val model: ModelWrapper = new ModelWrapper(128, 128) {
+	val model = new Model(128, 128) {
 		val center: ModelRenderer = this.createModel(
 			new V3O(0, -8, 0),
 			new V3O(5, 0, 5),
@@ -43,6 +42,7 @@ class RenderConsole() extends TERenderItem(new ResourceLocation(
 			V3O.ZERO, 12, 0
 		)
 		this.block10x10.addChild(this.block20x20)
+
 		override def renderModel(f5: Float): Unit = this.center.render(f5)
 	}
 

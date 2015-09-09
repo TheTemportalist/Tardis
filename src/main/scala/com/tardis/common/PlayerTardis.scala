@@ -2,11 +2,13 @@ package com.tardis.common
 
 import java.util.UUID
 
-import com.temportalist.origin.api.common.extended.ExtendedEntity
 import com.temportalist.origin.api.common.lib.LogHelper
 import com.temportalist.origin.api.common.utility.WorldHelper
-import com.temportalist.origin.common.Origin
-import com.temportalist.origin.common.extended.ExtendedEntityHandler
+import com.temportalist.origin.foundation.common.extended.ExtendedEntity
+import com.temportalist.origin.foundation.common.network.PacketExtendedSync
+import com.temportalist.origin.internal.common.Origin
+import com.temportalist.origin.internal.common.extended.ExtendedEntityHandler
+import cpw.mods.fml.relauncher.Side
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraftforge.common.DimensionManager
@@ -35,7 +37,9 @@ class PlayerTardis(p: EntityPlayer) extends ExtendedEntity(p) {
 	def setTardis(tDim: Int, tUUID: UUID): Unit = {
 		this.tardisDim = tDim
 		this.tardisUUID = tUUID
-		//this.syncEntity()
+		val least = if (this.tardisUUID == null) 0L else this.tardisUUID.getLeastSignificantBits
+		val most = if (this.tardisUUID == null) 0L else this.tardisUUID.getMostSignificantBits
+		this.syncEntity("tardis", this.tardisDim, least, most)
 	}
 
 	def setTardis(tardis: EntityTardis): Unit = {
@@ -43,36 +47,28 @@ class PlayerTardis(p: EntityPlayer) extends ExtendedEntity(p) {
 		else this.setTardis(tardis.worldObj.provider.dimensionId, tardis.getUniqueID)
 	}
 
-	def hasTardisToControl(): Boolean = this.tardisUUID != null
+	def hasTardisToControl: Boolean = this.tardisUUID != null
 
-	def getTardis(): EntityTardis = {
-		if (this.hasTardisToControl()) {
+	def getTardis: EntityTardis = {
+		if (this.hasTardisToControl)
 			Tardis.getTardisInWorld(
 				DimensionManager.getWorld(this.tardisDim),
-				this.tardisUUID, this.getTardis().getEntityId
+				this.tardisUUID, this.getTardis.getEntityId
 			)
-			//DimensionManager.getWorld(this.tardisDim).getEntityFromUuid(this.tardisUUID)
-			//		.asInstanceOf[EntityTardis]
-		}
-		else
-			null
+		else null
 	}
 
-	override def syncEntity(): Unit = {
-		val tagCom: NBTTagCompound = new NBTTagCompound()
-		this.saveNBTData(tagCom)
-		//val syncMessage: PacketSyncExtendedProperties =
-		//	new PacketSyncExtendedProperties(this.getClass, tagCom)
-		if (this.player != null)
-			if (WorldHelper.isServer()) {
-				//PacketHandler.sendToPlayer(Origin.MODID, syncMessage, this.player)
-			}
-			else {
-				//PacketHandler.sendToServer(Origin.MODID, syncMessage)
-			}
-		else
-			LogHelper.info(Origin.MODNAME, "Error: Null player in extended entity")
-
+	override def handleSyncPacketData(uniqueIdentifier: String, packet: PacketExtendedSync,
+			side: Side): Unit = {
+		uniqueIdentifier match {
+			case "tardis" =>
+				this.tardisDim = packet.get[Int]
+				val least = packet.get[Long]
+				val most = packet.get[Long]
+				if (least == 0L && most == 0L) this.tardisUUID = null
+				else this.tardisUUID = new UUID(most, least)
+			case _ =>
+		}
 	}
 
 }
@@ -80,7 +76,7 @@ class PlayerTardis(p: EntityPlayer) extends ExtendedEntity(p) {
 object PlayerTardis {
 
 	def get(player: EntityPlayer): PlayerTardis = {
-		ExtendedEntityHandler.getExtended(player, classOf[PlayerTardis]).asInstanceOf[PlayerTardis]
+		ExtendedEntityHandler.getExtended(player, classOf[PlayerTardis])
 	}
 
 }

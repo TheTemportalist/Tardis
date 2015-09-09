@@ -1,7 +1,7 @@
 package com.tardis.common.init
 
-import com.tardis.common.{Tardis, EntityTardis}
-import com.temportalist.origin.api.common.register.EntityRegister
+import com.tardis.common.{EntityTardis, Tardis}
+import com.temportalist.origin.foundation.common.register.EntityRegister
 
 /**
  *

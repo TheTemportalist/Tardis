@@ -3,12 +3,12 @@ package com.tardis.common
 import java.util
 import java.util.UUID
 
-import com.temportalist.origin.api.common.lib.vec.V3O
+import com.temportalist.origin.api.common.lib.V3O
 import com.temportalist.origin.api.common.utility.Scala
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.world.World
-import net.minecraftforge.common.{ForgeChunkManager, DimensionManager}
 import net.minecraftforge.common.ForgeChunkManager.{LoadingCallback, OrderedLoadingCallback, Ticket}
+import net.minecraftforge.common.{DimensionManager, ForgeChunkManager}
 
 /**
  *
@@ -23,15 +23,18 @@ object TardisChunkCallback extends LoadingCallback with OrderedLoadingCallback {
 		Scala.foreach(tickets, (index: Int, ticket: Ticket) => {
 			if (ticket.getModData.getString("id").equals("Tardis")) {
 				val tardis: EntityTardis = this.getTardis(ticket.getModData)
-				println (tardis)
+				//println(tardis)
 				if (tardis != null) {
 					val tardisPos: V3O = new V3O(tardis)
 					val tardisChunk: V3O = new V3O(tardisPos.x_i(), 0, tardisPos.z_i())
 					val chunkPos: V3O = this.getChunkPos(ticket.getModData)
 					if (tardisChunk == chunkPos) {
-						val a = retList.add(ticket)
+						retList.add(ticket)
 					}
 				}
+			}
+			else if (ticket.getModData.getString("id").equals("TardisDim")) {
+				retList.add(ticket)
 			}
 		})
 		retList
@@ -47,9 +50,12 @@ object TardisChunkCallback extends LoadingCallback with OrderedLoadingCallback {
 					val tardisChunk: V3O = new V3O(tardisPos.x_i(), 0, tardisPos.z_i())
 					val chunkPos: V3O = this.getChunkPos(ticket.getModData)
 					if (tardisChunk == chunkPos) {
-						ForgeChunkManager.forceChunk(ticket, chunkPos.toChunkPair())
+						ForgeChunkManager.forceChunk(ticket, chunkPos.toChunkPair)
 					}
 				}
+			}
+			else if (ticket.getModData.getString("id").equals("TardisDim")) {
+				ForgeChunkManager.forceChunk(ticket, this.getChunkPos(ticket.getModData).toChunkPair)
 			}
 		})
 	}

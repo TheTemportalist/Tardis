@@ -2,9 +2,9 @@ package com.tardis.common.network
 
 import java.util
 
-import com.tardis.common.Tardis
 import com.tardis.common.dimensions.TardisManager
-import com.temportalist.origin.api.common.network.IPacket
+import com.temportalist.origin.foundation.common.network.IPacket
+import cpw.mods.fml.relauncher.Side
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraftforge.common.DimensionManager
 
@@ -15,14 +15,12 @@ import net.minecraftforge.common.DimensionManager
  */
 class PacketDimensionRegistration() extends IPacket {
 
-	override def getChannel(): String = Tardis.MODID
-
 	def this(dimID: Int) {
 		this()
 		this.add(dimID)
 	}
 
-	override def handle(player: EntityPlayer, isServer: Boolean): Unit = {
+	override def handle(player: EntityPlayer, side: Side): Unit = {
 		if (TardisManager.registeredDims == null)
 			TardisManager.registeredDims = new util.ArrayList[Int]()
 		val dimID: Int = this.get[Int]

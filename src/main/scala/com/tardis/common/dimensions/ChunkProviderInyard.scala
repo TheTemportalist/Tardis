@@ -3,7 +3,7 @@ package com.tardis.common.dimensions
 import java.util
 
 import com.tardis.common.init.TardisBlocks
-import com.temportalist.origin.api.common.lib.vec.V3O
+import com.temportalist.origin.api.common.lib.V3O
 import net.minecraft.entity.EnumCreatureType
 import net.minecraft.init.Blocks
 import net.minecraft.util.IProgressUpdate
@@ -26,7 +26,7 @@ class ChunkProviderInyard(val world: World, data: InyardData) extends IChunkProv
 	override def chunkExists(x: Int, z: Int): Boolean = true
 
 	override def populate(provider: IChunkProvider, chunkX: Int, chunkZ: Int): Unit = {
-		val doorPos: V3O = this.data.getDoorPos()
+		val doorPos: V3O = this.data.getDoorPos
 		if ((doorPos.x_i() >> 4) == chunkX && (doorPos.z_i() >> 4) == chunkZ) {
 			val radius: Int = 1
 			for (xOff <- -radius to radius) for (zOff <- -radius to radius) {
@@ -35,7 +35,7 @@ class ChunkProviderInyard(val world: World, data: InyardData) extends IChunkProv
 			}
 
 			val meta: Int =
-				if (this.data.getTardis().isDoorOpen()) TardisBlocks.tDoor.cycleOpen(0) else 0
+				if (this.data.getTardis.isDoorOpen()) TardisBlocks.tDoor.cycleOpen(0) else 0
 			doorPos.setBlock(world, TardisBlocks.tDoor,
 				TardisBlocks.tDoor.setHalf(meta, false), 2)
 			doorPos.up().setBlock(world, TardisBlocks.tDoor,

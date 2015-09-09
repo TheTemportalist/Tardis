@@ -5,14 +5,13 @@ import java.util
 import java.util.List
 
 import com.tardis.common.EntityTardis
-import com.temportalist.origin.api.common.lib.vec.V3O
-import com.temportalist.origin.api.common.utility.{WorldHelper, Teleport, Scala}
-import com.temportalist.origin.library.common.utility.WorldHelper
-import net.minecraft.entity.player.{EntityPlayerMP, EntityPlayer}
+import com.temportalist.origin.api.common.lib.{TeleporterCore, V3O}
+import com.temportalist.origin.api.common.utility.{Scala, Teleport, WorldHelper}
+import net.minecraft.entity.player.{EntityPlayer, EntityPlayerMP}
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.MathHelper
 import net.minecraft.world.storage.MapStorage
-import net.minecraft.world.{World, WorldProvider}
+import net.minecraft.world.{WorldServer, World, WorldProvider}
 import net.minecraftforge.common.DimensionManager
 import net.minecraftforge.common.util.ForgeDirection
 
@@ -117,7 +116,7 @@ object TardisManager {
 
 	def createDimension(): InyardData = {
 		val dimID: Int = DimensionManager.getNextFreeDimId
-		if (WorldHelper.isClient())
+		if (WorldHelper.isClient)
 			throw new RuntimeException("Cannot create dimensions client-side")
 		this.registeredDims.add(dimID)
 		DimensionManager.registerDimension(dimID, this.providerID)
@@ -144,7 +143,7 @@ object TardisManager {
 	)
 
 	def getTardis(dimID: Int, isServer: Boolean): EntityTardis = {
-		this.getDimData(dimID, isServer).getTardis()
+		this.getDimData(dimID, isServer).getTardis
 	}
 
 	def movePlayerIntoTardis(player: EntityPlayer, tardis: EntityTardis): Unit = {
@@ -158,10 +157,12 @@ object TardisManager {
 		val spawn: V3O = data.getSpawnPoint(0) + V3O.CENTER.suppressedYAxis()
 		//Teleport.toDimensionPoint(player, spawn, dimID)
 
-		if (WorldHelper.isServer() && !player.isDead) {
+		if (WorldHelper.isServer && !player.isDead) {
 			println("teleport")
 			MinecraftServer.getServer.getConfigurationManager.transferPlayerToDimension(
-			player.asInstanceOf[EntityPlayerMP], dimID, new TeleporterCo
+				player.asInstanceOf[EntityPlayerMP], dimID, new TeleporterCore(
+					MinecraftServer.getServer.getEntityWorld.asInstanceOf[WorldServer]
+				)
 			)
 		}
 

@@ -23,7 +23,7 @@ import net.minecraft.world.World
  */
 class ProxyClient() extends ProxyCommon with IModGuiFactory {
 
-	override def registerRender(): Unit = {
+	override def register(): Unit = {
 		Rendering.registerRender(classOf[EntityTardis], new RenderTardis(new ModelTardis()))
 		val rtd: RenderTardisDoor = new RenderTardisDoor
 		Rendering.registerRender(classOf[TEDoor], rtd)

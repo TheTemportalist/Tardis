@@ -4,7 +4,7 @@ import java.util.UUID
 
 import com.tardis.common.init.TardisBlocks
 import com.tardis.common.{EntityTardis, Tardis}
-import com.temportalist.origin.api.common.lib.vec.V3O
+import com.temportalist.origin.api.common.lib.V3O
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.world.WorldSavedData
 import net.minecraftforge.common.DimensionManager
@@ -29,7 +29,7 @@ class InyardData(name: String) extends WorldSavedData(name) {
 
 	def setDoorPos(vec: V3O): Unit = this.doorPos = vec
 
-	def getDoorPos(): V3O = this.doorPos
+	def getDoorPos: V3O = this.doorPos
 
 	def setTardis(tardis: EntityTardis): Unit = {
 		this.tardisDim = tardis.worldObj.provider.dimensionId
@@ -38,7 +38,7 @@ class InyardData(name: String) extends WorldSavedData(name) {
 		this.tardis = tardis
 	}
 
-	def getTardis(): EntityTardis = {
+	def getTardis: EntityTardis = {
 		//println("Dim@" + this.dimID + " contains tardis stats of Dim@" +
 		//		this.tardisDim + " & UUID@" + this.tardisEID)
 		println("[InData] " + this.tardisDim)
@@ -54,7 +54,7 @@ class InyardData(name: String) extends WorldSavedData(name) {
 
 	def getSpawnPoint(meta: Int): V3O = {
 		(if (TardisBlocks.tDoor.getHalf(meta) > 0) V3O.DOWN else V3O.ZERO) +
-		this.doorPos + TardisBlocks.tDoor.getFacing(meta)
+				this.doorPos + TardisBlocks.tDoor.getFacing(meta)
 	}
 
 	override def writeToNBT(tagCom: NBTTagCompound): Unit = {

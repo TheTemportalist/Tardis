@@ -1,8 +1,8 @@
 package com.tardis.client.model
 
 import com.tardis.common.init.TardisBlocks
-import com.temportalist.origin.api.client.render.model.ModelWrapper
-import com.temportalist.origin.api.common.lib.vec.V3O
+import com.temportalist.origin.api.client.render.Model
+import com.temportalist.origin.api.common.lib.V3O
 import net.minecraft.client.model.ModelRenderer
 import net.minecraft.tileentity.TileEntity
 import net.minecraftforge.common.util.ForgeDirection
@@ -12,7 +12,7 @@ import net.minecraftforge.common.util.ForgeDirection
  *
  * @author TheTemportalist
  */
-class ModelDoor() extends ModelWrapper(128, 128) {
+class ModelDoor() extends Model(128, 128) {
 
 	// Lower Half things
 	var base: ModelRenderer = null
@@ -122,12 +122,12 @@ class ModelDoor() extends ModelWrapper(128, 128) {
 				this.base.rotateAngleY = yRot
 				this.b_doorL.rotateAngleY = -doorRot
 				this.b_doorR.rotateAngleY = doorRot
-				this.base.render(ModelWrapper.f5)
+				this.base.render(Model.f5)
 			case 1 =>
 				this.top.rotateAngleY = yRot
 				this.t_doorL.rotateAngleY = -doorRot
 				this.t_doorR.rotateAngleY = doorRot
-				this.top.render(ModelWrapper.f5)
+				this.top.render(Model.f5)
 			case _ =>
 		}
 	}
