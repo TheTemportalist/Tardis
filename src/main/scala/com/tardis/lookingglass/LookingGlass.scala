@@ -54,9 +54,15 @@ object LookingGlass extends IModResource {
 			case wvAPI: WorldViewAPI2 =>
 				val dim = tardis.getInteriorDimension()
 				//val data = TardisManager.getDimData(dim, isServer = false)
-				val wv = wvAPI.createWorldView(0, new ChunkCoordinates(0, 4, 10), 512, 1048)
-				wv.getCamera.setPitch(180)
-				//wv.getCamera.setYaw(-90)
+				/*
+				val wv = wvAPI.createWorldView(dim, new ChunkCoordinates(0, 0, 0), 256, 512)
+				wv.getCamera.setLocation(0.5, 0, -0.3)
+				wv.getCamera.setPitch(-10)
+				wv.getCamera.setYaw(180)
+				*/
+				val wv = wvAPI.createWorldView(0, new ChunkCoordinates(3, 7, 4), 256, 512)
+				wv.getCamera.setLocation(3, 7, 4)
+				wv.getCamera.addRotations(0, 0)
 				if (wv != null) tardis.setWorldView(wv)
 			case _ =>
 		}

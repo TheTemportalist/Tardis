@@ -231,13 +231,15 @@ class BlockTardisDoor(n: String) extends BlockTile(
 	}
 	*/
 
-	/*
-	override def onEntityCollidedWithBlock(
-			worldIn: World, pos: BlockPos, entity: Entity): Unit = {
-		if (!entity.isSneaking && !worldIn.isRemote && entity.isInstanceOf[EntityPlayer]) {
-			TardisManager.leaveDimension(entity.asInstanceOf[EntityPlayer])
+	override def onEntityCollidedWithBlock(world: World, x: Int, y: Int, z: Int,
+			entity: Entity): Unit = {
+		println("collide")
+		if (this.isOpen(world.getBlockMetadata(x, y, z)))
+		entity match {
+			case player: EntityPlayer =>
+				if (!world.isRemote) TardisManager.movePlayerOutOfTardis(player)
+			case _ =>
 		}
 	}
-	*/
 
 }
